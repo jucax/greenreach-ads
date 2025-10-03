@@ -14,7 +14,7 @@ export interface MultipleImageUploadResult {
 
 export class ImageService {
   /**
-   * Upload a single image to Supabase Storage
+   * Upload a single image to Supabase Storage using direct REST API (like Mina app)
    */
   static async uploadImage(
     file: File,
@@ -32,33 +32,39 @@ export class ImageService {
       // Generate unique filename
       const fileExt = file.name.split('.').pop() || 'jpg';
       const timestamp = Date.now();
-      const randomId = Math.random().toString(36).substring(2, 8);
-      const fileName = `${userId}/${timestamp}-${randomId}.${fileExt}`;
+      const randomId = Math.random().toString(36).substring(2, 15);
+      const fileName = `${timestamp}-${randomId}-${userId}.${fileExt}`;
 
       console.log('📝 Generated filename:', fileName);
 
-      // Upload file to Supabase Storage
-      const { data, error } = await supabase.storage
-        .from(bucket)
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
+      // Use direct REST API upload like Mina app
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      const uploadUrl = `${supabaseUrl}/storage/v1/object/${bucket}/${fileName}`;
 
-      if (error) {
-        console.error('❌ Upload error:', error);
-        return {
-          success: false,
-          error: error.message
-        };
+      console.log('🚀 Uploading to Supabase Storage REST endpoint...');
+      
+      // Use FormData like mina_app does
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch(uploadUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${supabaseAnonKey}`,
+        },
+        body: formData,
+      });
+
+      console.log('📤 Upload response:', response.status, response.statusText);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Upload failed: ${response.status} ${errorText}`);
       }
 
-      // Get public URL
-      const { data: urlData } = supabase.storage
-        .from(bucket)
-        .getPublicUrl(fileName);
-
-      const publicUrl = urlData.publicUrl;
+      // Construct the public URL
+      const publicUrl = `${supabaseUrl}/storage/v1/object/public/${bucket}/${fileName}`;
       console.log('✅ Image uploaded successfully:', publicUrl);
 
       return {

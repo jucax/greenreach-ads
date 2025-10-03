@@ -7,6 +7,7 @@ import { DashboardNavbar } from '../../../components/layout/DashboardNavbar';
 import { useAuth } from '../../../contexts/AuthContext';
 import { supabase } from '../../../lib/supabase';
 import { ImageService } from '../../../services/imageService';
+import { generateCampaignPlan } from '../../../lib/claude';
 
 interface CampaignFormData {
   productName: string;
@@ -226,51 +227,50 @@ export const CreateCampaignPage: React.FC = () => {
     setLoading(true);
     
     try {
-      console.log('\n1️⃣ Generating AI campaign data...');
+      console.log('\n1️⃣ Generating AI campaign data with Claude API...');
       
-      // Simulate AI generation (in production, call Claude API)
-      // Reduced delay for better user experience
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Call Claude API to generate campaign plan
+      const campaignPlan = await generateCampaignPlan({
+        productName: formData.productName,
+        productDescription: formData.productDescription,
+        productCategory: formData.productCategory,
+        budget: parseFloat(formData.budget),
+        objective: formData.objective,
+        startDate: formData.startDate,
+        endDate: formData.endDate
+      });
       
+      // Transform Claude response to match existing data structure
       const aiGeneratedData = {
         target_audience: {
-          ageRange: '25-45',
-          interests: ['Technology', 'Sustainability'],
-          demographics: 'Urban professionals',
-          incomeLevel: '$50k-$100k'
+          ageRange: campaignPlan.targetAudience.ageRange,
+          interests: campaignPlan.targetAudience.interests,
+          demographics: campaignPlan.targetAudience.demographics,
+          incomeLevel: campaignPlan.targetAudience.incomeLevel
         },
         geographic_targeting: {
-          primary: 'United States',
-          cities: ['New York', 'Los Angeles', 'San Francisco']
+          primary: campaignPlan.geographic.primary,
+          cities: campaignPlan.geographic.cities
         },
         posting_schedule: {
-          bestDays: ['Monday', 'Wednesday', 'Friday'],
-          bestTimes: ['9-11am EST', '7-9pm EST'],
-          reasoning: 'Peak engagement hours for target audience'
+          bestDays: campaignPlan.schedule.bestDays,
+          bestTimes: campaignPlan.schedule.bestTimes,
+          reasoning: campaignPlan.schedule.reasoning
         },
-        platform_allocation: [
-          { name: 'Facebook', budget: parseFloat(formData.budget) * 0.4, percentage: 40, reasoning: 'Best for brand awareness' },
-          { name: 'Instagram', budget: parseFloat(formData.budget) * 0.3, percentage: 30, reasoning: 'Visual content performs well' },
-          { name: 'Google', budget: parseFloat(formData.budget) * 0.3, percentage: 30, reasoning: 'High intent audience' }
-        ],
-        ad_variations: [
-          {
-            name: 'Variation 1',
-            targetSegment: 'Tech Enthusiasts',
-            headline: `Discover ${formData.productName}`,
-            body: formData.productDescription,
-            cta: 'Learn More',
-            whyItWorks: 'Appeals to tech-savvy audience'
-          },
-          {
-            name: 'Variation 2',
-            targetSegment: 'Eco-Conscious',
-            headline: `Sustainable ${formData.productName}`,
-            body: `Join the green revolution with ${formData.productName}`,
-            cta: 'Go Green',
-            whyItWorks: 'Emphasizes environmental benefits'
-          }
-        ]
+        platform_allocation: campaignPlan.platforms.map(platform => ({
+          name: platform.name,
+          budget: platform.budget,
+          percentage: platform.percentage,
+          reasoning: platform.reasoning
+        })),
+        ad_variations: campaignPlan.adVariations.map(variation => ({
+          name: variation.name,
+          targetSegment: variation.targetSegment,
+          headline: variation.headline,
+          body: variation.body,
+          cta: variation.cta,
+          whyItWorks: variation.whyItWorks
+        }))
       };
       
       console.log('✅ AI data generated');

@@ -219,7 +219,7 @@ export const DemoDashboardPage: React.FC = () => {
             <div>
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-semibold text-slate-900">Recent Campaigns</h2>
-                <Link to="/campaign/create">
+                <Link to="/demo/campaign/create">
                   <Button variant="default" size="md">
                     + New Campaign
                   </Button>
@@ -258,7 +258,7 @@ export const DemoDashboardPage: React.FC = () => {
                         </div>
                       </div>
 
-                      <Link to={`/campaign/${campaign.id}`}>
+                      <Link to={`/demo/campaign/${campaign.id}`}>
                         <button className="mt-4 text-sm text-emerald-600 hover:text-emerald-700 font-medium">
                           View →
                         </button>

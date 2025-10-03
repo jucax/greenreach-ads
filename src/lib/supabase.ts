@@ -268,32 +268,9 @@ export const getEmployeeLeaderboard = async (companyId: string): Promise<Employe
 
 // Helper function to calculate sustainability metrics
 export const calculateSustainabilityMetrics = async (budget: number) => {
-  const { data, error } = await supabase.rpc('calculate_sustainability_metrics', {
-    campaign_budget: budget
-  });
-  
-  if (error) {
-    console.error('Error calculating sustainability metrics:', error);
-    // Fallback to client-side calculation
-    const traditionalEnergy = budget * 0.076;
-    const optimizedEnergy = traditionalEnergy * 0.4;
-    const co2Saved = (traditionalEnergy - optimizedEnergy) * 0.5;
-    
-    let score = 'C';
-    if (optimizedEnergy < traditionalEnergy * 0.35) score = 'A+';
-    else if (optimizedEnergy < traditionalEnergy * 0.40) score = 'A';
-    else if (optimizedEnergy < traditionalEnergy * 0.45) score = 'A-';
-    else if (optimizedEnergy < traditionalEnergy * 0.50) score = 'B+';
-    else if (optimizedEnergy < traditionalEnergy * 0.60) score = 'B';
-    
-    return {
-      energy_used_kwh: optimizedEnergy,
-      co2_avoided_kg: co2Saved,
-      green_score: score
-    };
-  }
-  
-  return data;
+  // Use mock data instead of Supabase RPC
+  const { calculateMockSustainabilityMetrics } = await import('./mockData');
+  return calculateMockSustainabilityMetrics(budget);
 };
 
 // Helper function to generate company code

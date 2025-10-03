@@ -15,11 +15,17 @@ import { CampaignResultsPage } from './app/campaign/results/page';
 import { CampaignDetailPage } from './app/campaign/[id]/page';
 import { CampaignSuccessPage } from './app/campaign/success/page';
 import { DemoDashboardPage } from './app/dashboard/demo/page';
+import { DemoCreateCampaignPage } from './app/demo/campaign/create/page';
+import { DemoCampaignResultsPage } from './app/demo/campaign/results/page';
+import { DemoCampaignSuccessPage } from './app/demo/campaign/success/page';
 
 function App() {
-  return (
-    <AuthProvider>
-      <Router>
+  console.log('🚀 App: Component rendering...');
+  
+  try {
+    return (
+      <AuthProvider>
+        <Router>
         <Routes>
           {/* Landing page with layout */}
           <Route path="/" element={<Layout />}>
@@ -35,8 +41,11 @@ function App() {
           <Route path="register/company" element={<CompanyRegistrationPage />} />
           <Route path="register/individual" element={<IndividualRegistrationPage />} />
           
-          {/* Demo route without layout */}
-          <Route path="dashboard/demo" element={<DemoDashboardPage />} />
+          {/* Demo routes without layout */}
+          <Route path="demo" element={<DemoDashboardPage />} />
+          <Route path="demo/campaign/create" element={<DemoCreateCampaignPage />} />
+          <Route path="demo/campaign/results" element={<DemoCampaignResultsPage />} />
+          <Route path="demo/campaign/success" element={<DemoCampaignSuccessPage />} />
           
           {/* Protected routes - require authentication */}
           <Route path="dashboard" element={
@@ -72,7 +81,16 @@ function App() {
         </Routes>
       </Router>
     </AuthProvider>
-  );
+    );
+  } catch (error) {
+    console.error('❌ App: Error rendering app:', error);
+    return (
+      <div style={{ padding: '20px', color: 'red' }}>
+        <h1>App Error</h1>
+        <p>Something went wrong: {error instanceof Error ? error.message : 'Unknown error'}</p>
+      </div>
+    );
+  }
 }
 
 export default App;

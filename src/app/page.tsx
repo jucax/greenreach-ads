@@ -36,7 +36,7 @@ export const LandingPage: React.FC = () => {
               >
                 Get Started
               </button>
-              <Link to="/dashboard/demo">
+              <Link to="/demo">
                 <button className="bg-slate-700 hover:bg-slate-800 text-white font-semibold py-4 px-8 rounded-lg text-lg transition-all hover:scale-105">
                   View Demo
                 </button>
@@ -324,7 +324,7 @@ export const LandingPage: React.FC = () => {
                   <span className="text-6xl">🏢</span>
                 </div>
                 <CardTitle className="text-2xl mb-3 text-center">For Companies</CardTitle>
-                <CardDescription className="text-base mb-6 flex-1">
+                <div className="text-slate-600 text-base mb-6 flex-1">
                   <ul className="space-y-3 text-left">
                     <li className="flex items-start">
                       <svg className="w-5 h-5 text-emerald-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
@@ -351,7 +351,7 @@ export const LandingPage: React.FC = () => {
                       <span>Give your team the tools to create effective, responsible ads</span>
                     </li>
                   </ul>
-                </CardDescription>
+                </div>
                 <Link to="/register/company" className="block mt-auto">
                   <Button variant="default" size="lg" className="w-full">
                     Register Company
@@ -367,7 +367,7 @@ export const LandingPage: React.FC = () => {
                   <span className="text-6xl">👤</span>
                 </div>
                 <CardTitle className="text-2xl mb-3 text-center">For Individuals</CardTitle>
-                <CardDescription className="text-base mb-6 flex-1">
+                <div className="text-slate-600 text-base mb-6 flex-1">
                   <ul className="space-y-3 text-left">
                     <li className="flex items-start">
                       <svg className="w-5 h-5 text-emerald-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
@@ -394,7 +394,7 @@ export const LandingPage: React.FC = () => {
                       <span>Access the same professional tools as enterprise teams</span>
                     </li>
                   </ul>
-                </CardDescription>
+                </div>
                 <Link to="/register/individual" className="block mt-auto">
                   <Button variant="outline" size="lg" className="w-full">
                     Join as Individual

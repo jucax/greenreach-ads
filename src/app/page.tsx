@@ -1,111 +1,81 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Zap, Sparkles, Leaf, FileText, Brain, Eye, Rocket } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
 
 export const LandingPage: React.FC = () => {
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-emerald-50 via-white to-emerald-50 overflow-hidden">
-        <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] -z-10"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 sm:pt-32 sm:pb-32">
+      <section className="bg-gradient-to-br from-emerald-50 to-white py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            {/* Badge */}
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-emerald-100 text-emerald-700 text-sm font-medium mb-8">
-              <span className="w-2 h-2 bg-emerald-500 rounded-full mr-2 animate-pulse"></span>
-              Now with 60% less energy consumption
-            </div>
-
-            {/* Headline */}
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-slate-900 mb-6 leading-tight">
-              AI-Powered<br />
-              <span className="bg-gradient-to-r from-emerald-600 to-emerald-400 bg-clip-text text-transparent">
-                Sustainable Advertising
-              </span>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-400 bg-clip-text text-transparent mb-6">
+              AI-Powered Advertising That Doesn't Cost the Earth
             </h1>
-
-            {/* Subheading */}
-            <p className="text-xl sm:text-2xl text-slate-600 mb-10 max-w-3xl mx-auto">
-              Transform your marketing with intelligent campaigns that reduce energy consumption by 60% while maximizing ROI. Better for your business, better for the planet.
+            <p className="text-xl sm:text-2xl text-slate-600 mb-8 max-w-4xl mx-auto">
+              Personalized campaigns that reach the right audience while cutting energy use by 60%
             </p>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Link to="/auth/register">
-                <Button variant="default" size="lg" className="w-full sm:w-auto shadow-lg hover:shadow-xl transition-shadow">
-                  Get Started Free
-                </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                onClick={() => scrollToSection('choose-path')}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-4 px-8 rounded-lg text-lg transition-all hover:scale-105"
+              >
+                Get Started
+              </button>
+              <Link to="/dashboard">
+                <button className="bg-slate-700 hover:bg-slate-800 text-white font-semibold py-4 px-8 rounded-lg text-lg transition-all hover:scale-105">
+                  View Demo
+                </button>
               </Link>
-              <Link to="/features">
-                <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                  Learn More
-                </Button>
-              </Link>
-            </div>
-
-            {/* Social Proof */}
-            <div className="mt-12 text-sm text-slate-500">
-              Trusted by 500+ companies worldwide
+              <button
+                onClick={() => scrollToSection('solution')}
+                className="border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-50 font-semibold py-4 px-8 rounded-lg text-lg transition-all"
+              >
+                Learn More
+              </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Problem Statement Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
-              Powerful Features for Modern Marketing
-            </h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              Everything you need to create, manage, and optimize sustainable ad campaigns
-            </p>
+            <div className="flex items-center justify-center mb-4">
+              <span className="text-4xl mr-3">🍃</span>
+              <h2 className="text-3xl sm:text-4xl font-bold text-slate-900">
+                The Hidden Cost of Digital Advertising
+              </h2>
+            </div>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Feature 1 */}
-            <Card className="hover:shadow-2xl transition-shadow duration-300">
-              <CardHeader>
-                <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                </div>
-                <CardTitle>AI-Generated Campaigns</CardTitle>
-                <CardDescription>
-                  Create high-performing ad campaigns in seconds with our advanced AI. Generate copy, visuals, and targeting strategies automatically.
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <Card className="hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <CardHeader className="p-8 text-center">
+                <div className="text-5xl mb-4">💸</div>
+                <CardTitle className="text-xl mb-3">Wasted Budget</CardTitle>
+                <CardDescription className="text-base">
+                  <span className="font-bold text-emerald-600">63%</span> of ad spend reaches wrong audiences
                 </CardDescription>
               </CardHeader>
             </Card>
-
-            {/* Feature 2 */}
-            <Card className="hover:shadow-2xl transition-shadow duration-300">
-              <CardHeader>
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                </div>
-                <CardTitle>Smart Targeting</CardTitle>
-                <CardDescription>
-                  Reach the right audience with precision targeting powered by machine learning. Optimize in real-time for maximum efficiency.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            {/* Feature 3 */}
-            <Card className="hover:shadow-2xl transition-shadow duration-300">
-              <CardHeader>
-                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <CardTitle>Carbon Tracking</CardTitle>
-                <CardDescription>
-                  Monitor and reduce your carbon footprint in real-time. Get detailed reports on energy savings and environmental impact.
+            
+            <Card className="hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <CardHeader className="p-8 text-center">
+                <div className="text-5xl mb-4">🌍</div>
+                <CardTitle className="text-xl mb-3">Environmental Impact</CardTitle>
+                <CardDescription className="text-base">
+                  Traditional AI campaigns generate <span className="font-bold text-red-600">35kg CO2</span>
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -113,60 +83,380 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-20 bg-gradient-to-br from-emerald-600 to-emerald-700">
+      {/* Solution Overview Section */}
+      <section id="solution" className="py-20 bg-slate-50 scroll-mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="flex items-center justify-center mb-4">
+              <span className="text-4xl mr-3">✨</span>
+              <h2 className="text-3xl sm:text-4xl font-bold text-slate-900">
+                Meet GreenReach Ads
+              </h2>
+            </div>
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+              Energy-efficient AI that automates your workflow
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <Card className="hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <CardHeader className="p-8 text-center">
+                <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Zap className="w-8 h-8 text-emerald-600" />
+                </div>
+                <CardTitle className="text-xl mb-4">Automated Campaigns</CardTitle>
+                <CardDescription className="text-base leading-relaxed">
+                  AI handles strategy, platforms, and scheduling in <span className="font-bold text-emerald-600">15 minutes</span>
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card className="hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <CardHeader className="p-8 text-center">
+                <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Sparkles className="w-8 h-8 text-emerald-600" />
+                </div>
+                <CardTitle className="text-xl mb-4">Personalized Content</CardTitle>
+                <CardDescription className="text-base leading-relaxed">
+                  Generate tailored ad copy for different audiences <span className="font-bold text-emerald-600">instantly</span>
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card className="hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <CardHeader className="p-8 text-center">
+                <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Leaf className="w-8 h-8 text-emerald-600" />
+                </div>
+                <CardTitle className="text-xl mb-4">Measurably Sustainable</CardTitle>
+                <CardDescription className="text-base leading-relaxed">
+                  <span className="font-bold text-emerald-600">60% less energy</span> through smart models and renewable infrastructure
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section id="how-it-works" className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
+              From Product to Campaign in Minutes
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {/* Step 1 */}
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader className="p-6">
+                <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <FileText className="w-8 h-8 text-emerald-600" />
+                </div>
+                <div className="text-center mb-4">
+                  <span className="inline-block w-8 h-8 bg-emerald-600 rounded-full text-white font-bold flex items-center justify-center">1</span>
+                </div>
+                <CardTitle className="text-lg mb-3 text-center">Describe Your Product</CardTitle>
+                <CardDescription className="text-sm leading-relaxed">
+                  Tell us about what you're advertising—features, benefits, target use cases. Upload product images and set your budget. The more detail you provide, the smarter our AI recommendations.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            {/* Step 2 */}
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader className="p-6">
+                <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Brain className="w-8 h-8 text-emerald-600" />
+                </div>
+                <div className="text-center mb-4">
+                  <span className="inline-block w-8 h-8 bg-emerald-600 rounded-full text-white font-bold flex items-center justify-center">2</span>
+                </div>
+                <CardTitle className="text-lg mb-3 text-center">AI Analyzes & Strategizes</CardTitle>
+                <CardDescription className="text-sm leading-relaxed">
+                  Our agentic AI identifies your ideal audience demographics, selects the best platforms (Instagram, Facebook, Google), and determines optimal posting times—all while prioritizing energy-efficient processing.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            {/* Step 3 */}
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader className="p-6">
+                <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Eye className="w-8 h-8 text-emerald-600" />
+                </div>
+                <div className="text-center mb-4">
+                  <span className="inline-block w-8 h-8 bg-emerald-600 rounded-full text-white font-bold flex items-center justify-center">3</span>
+                </div>
+                <CardTitle className="text-lg mb-3 text-center">Review Recommendations</CardTitle>
+                <CardDescription className="text-sm leading-relaxed">
+                  See AI-generated ad copy variations for different audience segments, complete budget breakdowns, platform strategies, and real-time sustainability impact calculations before you launch.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            {/* Step 4 */}
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader className="p-6">
+                <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Rocket className="w-8 h-8 text-emerald-600" />
+                </div>
+                <div className="text-center mb-4">
+                  <span className="inline-block w-8 h-8 bg-emerald-600 rounded-full text-white font-bold flex items-center justify-center">4</span>
+                </div>
+                <CardTitle className="text-lg mb-3 text-center">Launch & Track</CardTitle>
+                <CardDescription className="text-sm leading-relaxed">
+                  Approve your campaign with one click. Monitor performance metrics, reach, conversions, and environmental impact from your dashboard. Our AI continues optimizing throughout the campaign.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Impact Section */}
+      <section className="py-20 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
+              Real Impact, Measured Results
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <Card className="text-center hover:shadow-xl transition-all duration-300">
+              <CardHeader className="p-10">
+                <div className="text-5xl mb-4">⚡</div>
+                <div className="text-5xl font-bold text-emerald-600 mb-2">60%</div>
+                <CardTitle className="text-xl mb-2">Less Energy</CardTitle>
+                <p className="text-slate-600">vs traditional platforms</p>
+              </CardHeader>
+            </Card>
+
+            <Card className="text-center hover:shadow-xl transition-all duration-300">
+              <CardHeader className="p-10">
+                <div className="text-5xl mb-4">📈</div>
+                <div className="text-5xl font-bold text-emerald-600 mb-2">35%</div>
+                <CardTitle className="text-xl mb-2">Higher ROI</CardTitle>
+                <p className="text-slate-600">through better targeting</p>
+              </CardHeader>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Partners Section */}
+      <section className="py-16 bg-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              Making an Impact Together
+            <h3 className="text-xl font-semibold text-slate-600 mb-8">Trusted By</h3>
+          </div>
+          
+          <div className="relative">
+            <div className="flex flex-wrap justify-center items-center gap-12 opacity-50">
+              <div className="w-40 h-20 bg-slate-200 rounded-lg flex items-center justify-center">
+                <span className="text-slate-600 font-bold text-sm">Dell Technologies</span>
+              </div>
+              <div className="w-40 h-20 bg-slate-200 rounded-lg flex items-center justify-center">
+                <span className="text-slate-600 font-bold text-sm">eBay</span>
+              </div>
+              <div className="w-40 h-20 bg-slate-200 rounded-lg flex items-center justify-center">
+                <span className="text-slate-600 font-bold text-sm">The Home Depot</span>
+              </div>
+              <div className="w-40 h-20 bg-slate-200 rounded-lg flex items-center justify-center">
+                <span className="text-slate-600 font-bold text-sm">Capital One</span>
+              </div>
+              <div className="w-40 h-20 bg-slate-200 rounded-lg flex items-center justify-center">
+                <span className="text-slate-600 font-bold text-sm">Thrivent</span>
+              </div>
+            </div>
+            
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <span className="bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full text-sm font-semibold border-2 border-emerald-200">
+                Coming Soon
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Why It Matters Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="flex items-center justify-center mb-4">
+            <span className="text-4xl mr-3">💚</span>
+            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900">
+              Smart Business Meets Environmental Responsibility
             </h2>
-            <p className="text-lg text-emerald-100 max-w-2xl mx-auto">
-              Join thousands of companies creating sustainable advertising campaigns
+          </div>
+          <p className="text-lg text-slate-600 leading-relaxed">
+            Effective advertising and sustainability achieved together. <span className="font-bold text-emerald-600">Reduce your carbon footprint</span> while improving performance and gaining <span className="font-bold text-emerald-600">ESG credentials</span>.
+          </p>
+        </div>
+      </section>
+
+      {/* Choose Your Path Section */}
+      <section id="choose-path" className="py-20 bg-slate-50 scroll-mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
+              Choose Your Path
+            </h2>
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+              Get started with GreenReach Ads in the way that works best for you
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Stat 1 */}
-            <div className="text-center">
-              <div className="text-5xl sm:text-6xl font-bold text-white mb-2">60%</div>
-              <div className="text-xl text-emerald-100">Less Energy</div>
-              <p className="text-emerald-200 mt-2">Compared to traditional advertising platforms</p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {/* For Companies */}
+            <Card className="hover:shadow-2xl hover:scale-105 transition-all duration-300">
+              <CardHeader className="p-8">
+                <div className="text-center mb-6">
+                  <span className="text-6xl">🏢</span>
+                </div>
+                <CardTitle className="text-2xl mb-3 text-center">For Companies</CardTitle>
+                <CardDescription className="text-base mb-6">
+                  <ul className="space-y-3 text-left">
+                    <li className="flex items-start">
+                      <svg className="w-5 h-5 text-emerald-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <span>Launch your organization's sustainable advertising hub</span>
+                    </li>
+                    <li className="flex items-start">
+                      <svg className="w-5 h-5 text-emerald-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <span>Get AI-powered campaign automation and personalization</span>
+                    </li>
+                    <li className="flex items-start">
+                      <svg className="w-5 h-5 text-emerald-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <span>Track energy savings and ESG impact across all campaigns</span>
+                    </li>
+                    <li className="flex items-start">
+                      <svg className="w-5 h-5 text-emerald-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <span>Give your team the tools to create effective, responsible ads</span>
+                    </li>
+                  </ul>
+                </CardDescription>
+                <Link to="/register/company" className="block mt-6">
+                  <Button variant="default" size="lg" className="w-full">
+                    Register Company
+                  </Button>
+                </Link>
+              </CardHeader>
+            </Card>
 
-            {/* Stat 2 */}
-            <div className="text-center">
-              <div className="text-5xl sm:text-6xl font-bold text-white mb-2">10,000+</div>
-              <div className="text-xl text-emerald-100">Campaigns</div>
-              <p className="text-emerald-200 mt-2">Created by marketers worldwide</p>
-            </div>
-
-            {/* Stat 3 */}
-            <div className="text-center">
-              <div className="text-5xl sm:text-6xl font-bold text-white mb-2">50</div>
-              <div className="text-xl text-emerald-100">Tons CO₂ Saved</div>
-              <p className="text-emerald-200 mt-2">Environmental impact reduction</p>
-            </div>
+            {/* For Individuals */}
+            <Card className="hover:shadow-2xl hover:scale-105 transition-all duration-300">
+              <CardHeader className="p-8">
+                <div className="text-center mb-6">
+                  <span className="text-6xl">👤</span>
+                </div>
+                <CardTitle className="text-2xl mb-3 text-center">For Individuals</CardTitle>
+                <CardDescription className="text-base mb-6">
+                  <ul className="space-y-3 text-left">
+                    <li className="flex items-start">
+                      <svg className="w-5 h-5 text-emerald-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <span>Join your company with a team code</span>
+                    </li>
+                    <li className="flex items-start">
+                      <svg className="w-5 h-5 text-emerald-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <span>Create and manage campaigns with AI assistance</span>
+                    </li>
+                    <li className="flex items-start">
+                      <svg className="w-5 h-5 text-emerald-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <span>See your personal sustainability impact</span>
+                    </li>
+                    <li className="flex items-start">
+                      <svg className="w-5 h-5 text-emerald-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <span>Access the same professional tools as enterprise teams</span>
+                    </li>
+                  </ul>
+                </CardDescription>
+                <Link to="/register/individual" className="block mt-6">
+                  <Button variant="outline" size="lg" className="w-full">
+                    Join as Individual
+                  </Button>
+                </Link>
+              </CardHeader>
+            </Card>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-white">
+      {/* Final CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-emerald-600 to-emerald-500">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-6">
-            Ready to Get Started?
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            Ready to Advertise Smarter?
           </h2>
-          <p className="text-xl text-slate-600 mb-8">
-            Join the sustainable advertising revolution today. No credit card required.
+          <p className="text-xl text-emerald-100 mb-8">
+            Join businesses proving sustainability and effectiveness go hand in hand
           </p>
-          <Link to="/auth/register">
-            <Button variant="default" size="lg" className="shadow-lg hover:shadow-xl transition-shadow">
-              Start Your Free Trial
-            </Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button
+              onClick={() => scrollToSection('choose-path')}
+              className="bg-white text-emerald-600 hover:bg-emerald-50 font-semibold py-4 px-8 rounded-lg text-lg transition-all hover:scale-105"
+            >
+              Get Started
+            </button>
+            <Link to="/dashboard">
+              <button className="bg-slate-800 hover:bg-slate-900 text-white font-semibold py-4 px-8 rounded-lg text-lg transition-all hover:scale-105">
+                View Demo
+              </button>
+            </Link>
+          </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="bg-slate-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="col-span-1 md:col-span-2">
+              <h3 className="text-2xl font-bold mb-4">GreenReach Ads</h3>
+              <p className="text-slate-300 mb-4">
+                AI-powered advertising that doesn't cost the earth. Smart campaigns, sustainable impact.
+              </p>
+              <p className="text-sm text-slate-400">
+                © 2024 GreenReach Ads. All rights reserved.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Product</h4>
+              <ul className="space-y-2 text-slate-300">
+                <li><Link to="/campaign/create" className="hover:text-white">Create Campaign</Link></li>
+                <li><Link to="/dashboard" className="hover:text-white">Dashboard</Link></li>
+                <li><a href="#" className="hover:text-white">Pricing</a></li>
+                <li><a href="#" className="hover:text-white">API</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Company</h4>
+              <ul className="space-y-2 text-slate-300">
+                <li><a href="#" className="hover:text-white">About</a></li>
+                <li><a href="#" className="hover:text-white">Blog</a></li>
+                <li><a href="#" className="hover:text-white">Careers</a></li>
+                <li><a href="#" className="hover:text-white">Contact</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
-

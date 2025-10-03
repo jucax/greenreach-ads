@@ -41,12 +41,11 @@ export const LandingPage: React.FC = () => {
                   View Demo
                 </button>
               </Link>
-              <button
-                onClick={() => scrollToSection('solution')}
-                className="border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-50 font-semibold py-4 px-8 rounded-lg text-lg transition-all"
-              >
-                Learn More
-              </button>
+              <Link to="/about">
+                <button className="border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-50 font-semibold py-4 px-8 rounded-lg text-lg transition-all">
+                  Learn More
+                </button>
+              </Link>
             </div>
           </div>
         </div>

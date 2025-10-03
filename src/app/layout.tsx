@@ -29,7 +29,7 @@ export const Layout: React.FC = () => {
                 Pricing
               </Link>
               <Link to="/about" className="text-slate-600 hover:text-emerald-600 transition-colors">
-                About
+                About Us
               </Link>
             </div>
 
@@ -88,7 +88,7 @@ export const Layout: React.FC = () => {
             <div>
               <h3 className="font-semibold text-slate-900 mb-4">Company</h3>
               <ul className="space-y-2">
-                <li><Link to="/about" className="text-slate-600 hover:text-emerald-600">About</Link></li>
+                <li><Link to="/about" className="text-slate-600 hover:text-emerald-600">About Us</Link></li>
                 <li><Link to="/contact" className="text-slate-600 hover:text-emerald-600">Contact</Link></li>
                 <li><Link to="/privacy" className="text-slate-600 hover:text-emerald-600">Privacy</Link></li>
               </ul>

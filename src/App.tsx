@@ -3,6 +3,8 @@ import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Layout } from './app/layout';
 import { LandingPage } from './app/page';
+import { AboutPage } from './app/about/page';
+import { PricingPage } from './app/pricing/page';
 import { LoginPage } from './app/auth/login/page';
 import { DashboardPage } from './app/dashboard/page';
 import { CreateCampaignPage } from './app/campaigns/create/page';
@@ -22,6 +24,8 @@ function App() {
           {/* Landing page with layout */}
           <Route path="/" element={<Layout />}>
             <Route index element={<LandingPage />} />
+            <Route path="about" element={<AboutPage />} />
+            <Route path="pricing" element={<PricingPage />} />
           </Route>
           
           {/* Auth routes without layout */}

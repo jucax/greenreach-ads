@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import greenreachLogo from '../../assets/greenreach-logo-1.png';
 import { useAuth } from '../../contexts/AuthContext';
@@ -20,7 +20,6 @@ export const DashboardNavbar: React.FC<DashboardNavbarProps> = ({
   const { user, company, signOut } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
 
   const getInitials = (name: string): string => {
     return name

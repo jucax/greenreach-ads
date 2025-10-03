@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase, isDemoMode, setDemoMode, User, Company } from '../lib/supabase';
+import { supabase, isDemoMode, setDemoMode } from '../lib/supabase';
+import type { User, Company } from '../lib/supabase';
 
 interface AppContextType {
   isDemo: boolean;

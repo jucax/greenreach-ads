@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../../../components/ui/Button';
-import { Card, CardHeader, CardTitle, CardDescription } from '../../../components/ui/Card';
+import { Card, CardHeader } from '../../../components/ui/Card';
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');

@@ -1,4 +1,4 @@
-# GreenReach Ads 🌱
+t # GreenReach Ads 🌱
 
 **AI-powered advertising platform that reduces energy consumption by 60% while delivering better results**
 

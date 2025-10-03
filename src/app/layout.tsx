@@ -1,9 +1,22 @@
 import React from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import greenreachLogo from '../assets/greenreach-logo-1.png';
 
 export const Layout: React.FC = () => {
+  const location = useLocation();
+
+  const scrollToSection = (sectionId: string) => {
+    if (location.pathname === '/') {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      // If not on home page, navigate to home with hash
+      window.location.href = `/#${sectionId}`;
+    }
+  };
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
@@ -40,11 +53,12 @@ export const Layout: React.FC = () => {
                   Log In
                 </Button>
               </Link>
-              <Link to="/register/individual">
-                <Button variant="default" size="md">
-                  Get Started
-                </Button>
-              </Link>
+              <button
+                onClick={() => scrollToSection('choose-path')}
+                className="inline-flex items-center justify-center rounded-lg font-medium transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none bg-emerald-500 text-white hover:bg-emerald-600 focus:ring-emerald-500 px-4 py-2 text-base"
+              >
+                Get Started
+              </button>
             </div>
           </div>
         </div>

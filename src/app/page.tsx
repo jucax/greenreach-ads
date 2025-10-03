@@ -24,7 +24,8 @@ export const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-400 bg-clip-text text-transparent mb-6">
-              AI-Powered Advertising That Doesn't Cost the Earth
+              AI-Powered Advertising<br />
+              That Doesn't Cost the Earth
             </h1>
             <p className="text-xl sm:text-2xl text-slate-600 mb-8 max-w-4xl mx-auto">
               Personalized campaigns that reach the right audience while cutting energy use by 60%
@@ -36,7 +37,7 @@ export const LandingPage: React.FC = () => {
               >
                 Get Started
               </button>
-              <Link to="/dashboard">
+              <Link to="/dashboard/demo">
                 <button className="bg-slate-700 hover:bg-slate-800 text-white font-semibold py-4 px-8 rounded-lg text-lg transition-all hover:scale-105">
                   View Demo
                 </button>
@@ -423,7 +424,7 @@ export const LandingPage: React.FC = () => {
             >
               Get Started
             </button>
-            <Link to="/dashboard">
+            <Link to="/dashboard/demo">
               <button className="bg-slate-800 hover:bg-slate-900 text-white font-semibold py-4 px-8 rounded-lg text-lg transition-all hover:scale-105">
                 View Demo
               </button>

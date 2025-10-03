@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, MapPin, DollarSign, Calendar, Clock, Globe } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { Card, CardHeader, CardTitle } from '../../../components/ui/Card';
 import { InstagramPost } from '../../../components/ui/InstagramPost';
 import { DashboardNavbar } from '../../../components/layout/DashboardNavbar';
 import { CampaignLoadingScreen } from '../../../components/ui/CampaignLoadingScreen';
+import { useAuth } from '../../../contexts/AuthContext';
+import { supabase } from '../../../lib/supabase';
+import type { Campaign } from '../../../lib/supabase';
 
 // Age Range Visualization Component
 const AgeRangeVisualization: React.FC<{ ageRange: string }> = ({ ageRange }) => {
@@ -64,77 +67,112 @@ const AgeRangeVisualization: React.FC<{ ageRange: string }> = ({ ageRange }) => 
 };
 
 export const CampaignResultsPage: React.FC = () => {
-  const location = useLocation();
-  const campaignData = location.state?.campaignData || {};
+  const { user, company } = useAuth();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const campaignId = searchParams.get('id');
+  const [campaignData, setCampaignData] = useState<Campaign | null>(null);
+  const [loading, setLoading] = useState(true);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
   const [isLaunching, setIsLaunching] = useState(false);
 
-  // Mock AI-generated data (would come from Claude API)
-  const aiData = {
-    targetAudience: {
-      ageRange: "25-40",
-      interests: ["Sustainability", "Health & Wellness", "Technology", "Outdoor Activities"],
-      demographics: "Urban professionals, environmentally conscious",
-      incomeLevel: "$50k-$100k annually"
-    },
-    geographic: {
-      primary: "United States (Urban areas)",
-      cities: ["New York", "Los Angeles", "Chicago", "Austin", "Seattle"]
-    },
-    schedule: {
-      bestDays: ["Tuesday", "Thursday", "Saturday"],
-      bestTimes: ["2-4pm EST", "10am-12pm EST"],
-      reasoning: "Peak engagement for your demographic and aligns with renewable energy peaks"
-    },
-    platforms: [
-      { name: "Instagram", budget: 200, percentage: 40, reasoning: "Visual platform perfect for product showcase" },
-      { name: "Facebook", budget: 175, percentage: 35, reasoning: "Broad reach with detailed targeting options" },
-      { name: "Google", budget: 125, percentage: 25, reasoning: "Intent-based advertising for higher conversion rates" }
-    ],
-    adVariations: [
-      {
-        name: "Variation 1: Young Professionals",
-        targetSegment: "Ages 25-35, urban professionals",
-        headline: "Transform Your Daily Routine",
-        body: "Discover the perfect solution for your busy lifestyle. Our innovative product delivers exceptional results while being environmentally conscious. Join thousands of satisfied customers who've made the smart choice.",
-        cta: "Shop Now",
-        whyItWorks: "Targets health-conscious professionals who value efficiency and sustainability"
-      },
-      {
-        name: "Variation 2: Eco-Conscious Consumers",
-        targetSegment: "Ages 30-45, environmentally aware",
-        headline: "Sustainable Living Made Simple",
-        body: "Make a positive impact on the planet without compromising on quality. Our eco-friendly solution helps you live more sustainably while enjoying premium performance.",
-        cta: "Learn More",
-        whyItWorks: "Appeals to environmentally conscious consumers who prioritize sustainability"
-      },
-      {
-        name: "Variation 3: Lifestyle Enthusiasts",
-        targetSegment: "Ages 25-40, active lifestyle",
-        headline: "Elevate Your Experience",
-        body: "Upgrade your daily routine with our premium product. Designed for modern living, it combines style, functionality, and environmental responsibility in one perfect package.",
-        cta: "Get Started",
-        whyItWorks: "Focuses on lifestyle enhancement and premium quality for active consumers"
+  // Load campaign data from database
+  useEffect(() => {
+    if (campaignId && user && company) {
+      loadCampaignData();
+    } else if (!campaignId) {
+      console.error('❌ No campaign ID provided');
+      setLoading(false);
+    }
+  }, [campaignId, user, company]);
+
+  const loadCampaignData = async () => {
+    if (!campaignId || !user || !company) return;
+
+    try {
+      console.log('📊 Loading campaign data for ID:', campaignId);
+      setLoading(true);
+
+      const { data: campaign, error } = await supabase
+        .from('campaigns')
+        .select('*')
+        .eq('id', campaignId)
+        .eq('company_id', company.id) // Ensure user can only see their company's campaigns
+        .single();
+
+      if (error) {
+        console.error('❌ Error loading campaign:', error);
+        console.error('Campaign error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+        alert('Campaign not found or access denied');
+        setLoading(false);
+        return;
       }
-    ],
-    sustainability: {
-      energy: "15 kWh (vs 38 kWh traditional)",
-      co2: "7.5kg saved",
-      greenScore: "A-"
+
+      if (!campaign) {
+        console.log('❌ Campaign not found');
+        alert('Campaign not found');
+        setLoading(false);
+        return;
+      }
+
+      console.log('✅ Campaign loaded successfully:', campaign);
+      setCampaignData(campaign);
+      setSelectedImageIndex(campaign.selected_image_index || 0);
+      setLoading(false);
+
+    } catch (error) {
+      console.error('💥 Unexpected error loading campaign:', error);
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      alert('An unexpected error occurred while loading the campaign');
+      setLoading(false);
     }
   };
 
   const getDisplayImage = () => {
-    if (campaignData.images && campaignData.images.length > 0) {
-      return campaignData.images[selectedImageIndex];
+    if (campaignData?.image_urls && campaignData.image_urls.length > 0) {
+      return campaignData.image_urls[selectedImageIndex];
     }
     // Fallback image
     return 'https://via.placeholder.com/400x400/10b981/ffffff?text=Product+Image';
   };
 
-  const handleLaunchCampaign = () => {
+  const handleLaunchCampaign = async () => {
+    if (!campaignData) return;
+    
     setIsLaunching(true);
+    
+    try {
+      console.log('🚀 Launching campaign:', campaignData.id);
+      
+      // Update campaign status to active
+      const { error } = await supabase
+        .from('campaigns')
+        .update({ status: 'active' })
+        .eq('id', campaignData.id);
+      
+      if (error) {
+        console.error('❌ Error launching campaign:', error);
+        alert('Error launching campaign. Please try again.');
+        setIsLaunching(false);
+        return;
+      }
+      
+      console.log('✅ Campaign launched successfully');
+      
+      // Navigate to success page using React Router
+      navigate('/campaign/success');
+      
+    } catch (error) {
+      console.error('💥 Unexpected error launching campaign:', error);
+      alert('An unexpected error occurred while launching the campaign');
+      setIsLaunching(false);
+    }
   };
 
   const handleLaunchComplete = () => {
@@ -143,11 +181,15 @@ export const CampaignResultsPage: React.FC = () => {
   };
 
   const nextAd = () => {
-    setCurrentAdIndex((prev) => (prev + 1) % aiData.adVariations.length);
+    if (campaignData?.ad_variations) {
+      setCurrentAdIndex((prev) => (prev + 1) % campaignData.ad_variations.length);
+    }
   };
 
   const prevAd = () => {
-    setCurrentAdIndex((prev) => (prev - 1 + aiData.adVariations.length) % aiData.adVariations.length);
+    if (campaignData?.ad_variations) {
+      setCurrentAdIndex((prev) => (prev - 1 + campaignData.ad_variations.length) % campaignData.ad_variations.length);
+    }
   };
 
   // Show loading screen if launching
@@ -155,7 +197,24 @@ export const CampaignResultsPage: React.FC = () => {
     return <CampaignLoadingScreen onComplete={handleLaunchComplete} />;
   }
 
-  const currentAd = aiData.adVariations[currentAdIndex];
+  if (loading) {
+    return <CampaignLoadingScreen />;
+  }
+
+  if (!campaignData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-slate-600">Campaign not found or access denied.</p>
+          <Link to="/dashboard" className="text-emerald-600 hover:text-emerald-700">
+            Return to Dashboard
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const currentAd = campaignData.ad_variations?.[currentAdIndex];
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -167,7 +226,7 @@ export const CampaignResultsPage: React.FC = () => {
         {/* Page Header */}
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-slate-900 mb-2">AI-Generated Campaign</h2>
-          <p className="text-slate-600">Personalized recommendations for {campaignData.productName || 'your product'}</p>
+          <p className="text-slate-600">Personalized recommendations for {campaignData.product_name || 'your product'}</p>
         </div>
 
         {/* Two Column Layout */}
@@ -180,12 +239,12 @@ export const CampaignResultsPage: React.FC = () => {
                 <CardTitle className="text-lg mb-4">Recommended Target Audience</CardTitle>
                 <div className="space-y-4">
                   {/* Age Range Visualization */}
-                  <AgeRangeVisualization ageRange={aiData.targetAudience.ageRange} />
+                  <AgeRangeVisualization ageRange={campaignData.target_audience?.ageRange || '25-45'} />
                   
                   <div className="pt-4 border-t border-slate-200">
                     <span className="text-sm font-medium text-slate-600">Interests:</span>
                     <div className="flex flex-wrap gap-1 mt-1">
-                      {aiData.targetAudience.interests.map((interest, index) => (
+                      {(campaignData.target_audience?.interests || []).map((interest: string, index: number) => (
                         <span key={index} className="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded">
                           {interest}
                         </span>
@@ -194,12 +253,12 @@ export const CampaignResultsPage: React.FC = () => {
                   </div>
                   <div>
                     <span className="text-sm font-medium text-slate-600">Demographics:</span>
-                    <span className="ml-2 text-slate-900">{aiData.targetAudience.demographics}</span>
+                    <span className="ml-2 text-slate-900">{campaignData.target_audience?.demographics || 'Target demographics'}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <DollarSign className="w-4 h-4 text-emerald-600" />
                     <span className="text-sm font-medium text-slate-600">Income Level:</span>
-                    <span className="ml-1 text-slate-900">{aiData.targetAudience.incomeLevel}</span>
+                    <span className="ml-1 text-slate-900">{campaignData.target_audience?.incomeLevel || 'Target income level'}</span>
                   </div>
                 </div>
               </CardHeader>
@@ -213,14 +272,14 @@ export const CampaignResultsPage: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <Globe className="w-4 h-4 text-emerald-600" />
                     <span className="text-sm font-medium text-slate-600">Primary:</span>
-                    <span className="ml-1 text-slate-900">{aiData.geographic.primary}</span>
+                    <span className="ml-1 text-slate-900">{campaignData.geographic_targeting?.primary || 'Primary location'}</span>
                   </div>
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <MapPin className="w-4 h-4 text-emerald-600" />
                       <span className="text-sm font-medium text-slate-600">Focus cities:</span>
                     </div>
-                    <div className="text-slate-900 pl-6">{aiData.geographic.cities.join(', ')}</div>
+                    <div className="text-slate-900 pl-6">{(campaignData.geographic_targeting?.cities || []).join(', ')}</div>
                   </div>
                 </div>
               </CardHeader>
@@ -234,16 +293,16 @@ export const CampaignResultsPage: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-emerald-600" />
                     <span className="text-sm font-medium text-slate-600">Best Days:</span>
-                    <span className="ml-1 text-slate-900">{aiData.schedule.bestDays.join(', ')}</span>
+                    <span className="ml-1 text-slate-900">{(campaignData.posting_schedule?.bestDays || []).join(', ')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4 text-emerald-600" />
                     <span className="text-sm font-medium text-slate-600">Best Times:</span>
-                    <span className="ml-1 text-slate-900">{aiData.schedule.bestTimes.join(', ')}</span>
+                    <span className="ml-1 text-slate-900">{(campaignData.posting_schedule?.bestTimes || []).join(', ')}</span>
                   </div>
                   <div>
                     <span className="text-sm font-medium text-slate-600">Why:</span>
-                    <span className="ml-2 text-slate-900">{aiData.schedule.reasoning}</span>
+                    <span className="ml-2 text-slate-900">{campaignData.posting_schedule?.reasoning || 'Optimal posting schedule'}</span>
                   </div>
                 </div>
               </CardHeader>
@@ -256,16 +315,16 @@ export const CampaignResultsPage: React.FC = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-slate-600">Energy:</span>
-                    <span className="font-medium text-slate-900">{aiData.sustainability.energy}</span>
+                    <span className="font-medium text-slate-900">{campaignData.energy_used_kwh?.toFixed(0) || '0'} kWh</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-600">CO₂:</span>
-                    <span className="font-medium text-slate-900">{aiData.sustainability.co2}</span>
+                    <span className="font-medium text-slate-900">{campaignData.co2_avoided_kg?.toFixed(0) || '0'}kg saved</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-600">Green Score:</span>
                     <span className="px-2 py-1 bg-emerald-100 text-emerald-700 text-sm font-semibold rounded">
-                      {aiData.sustainability.greenScore}
+                      {campaignData.green_score || 'C'}
                     </span>
                   </div>
                 </div>
@@ -281,7 +340,7 @@ export const CampaignResultsPage: React.FC = () => {
                 <CardTitle className="text-xl mb-6">AI-Generated Ad Variations</CardTitle>
                 
                 {/* Image Selector */}
-                {campaignData.images && campaignData.images.length > 1 && (
+                {campaignData.image_urls && campaignData.image_urls.length > 1 && (
                   <div className="mb-6">
                     <label className="block text-sm font-medium text-slate-700 mb-2">
                       Preview with image:
@@ -291,7 +350,7 @@ export const CampaignResultsPage: React.FC = () => {
                       onChange={(e) => setSelectedImageIndex(Number(e.target.value))}
                       className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     >
-                      {campaignData.images.map((_img: string, index: number) => (
+                      {campaignData.image_urls.map((_img: string, index: number) => (
                         <option key={index} value={index}>
                           Image {index + 1}
                         </option>
@@ -307,22 +366,22 @@ export const CampaignResultsPage: React.FC = () => {
                     <button
                       onClick={prevAd}
                       className="p-2 rounded-full hover:bg-slate-100 transition-colors"
-                      disabled={aiData.adVariations.length <= 1}
+                      disabled={!campaignData.ad_variations || campaignData.ad_variations.length <= 1}
                     >
                       <ChevronLeft className="w-6 h-6 text-slate-600" />
                     </button>
                     
                     <div className="text-center">
                       <h3 className="text-lg font-semibold text-slate-900 mb-1">
-                        {currentAd.name}
+                        {currentAd?.name || 'Ad Variation'}
                       </h3>
-                      <p className="text-sm text-slate-600">{currentAd.targetSegment}</p>
+                      <p className="text-sm text-slate-600">{currentAd?.targetSegment || 'Target segment'}</p>
                     </div>
                     
                     <button
                       onClick={nextAd}
                       className="p-2 rounded-full hover:bg-slate-100 transition-colors"
-                      disabled={aiData.adVariations.length <= 1}
+                      disabled={!campaignData.ad_variations || campaignData.ad_variations.length <= 1}
                     >
                       <ChevronRight className="w-6 h-6 text-slate-600" />
                     </button>
@@ -333,22 +392,22 @@ export const CampaignResultsPage: React.FC = () => {
                     <div className="flex justify-center mb-6">
                       <InstagramPost
                         imageUrl={getDisplayImage()}
-                        headline={currentAd.headline}
-                        bodyText={currentAd.body}
-                        ctaText={currentAd.cta}
+                        headline={currentAd?.headline || 'Campaign Headline'}
+                        bodyText={currentAd?.body || 'Campaign description...'}
+                        ctaText={currentAd?.cta || 'Learn More'}
                       />
                     </div>
 
                     {/* Why This Works */}
                     <div className="bg-white rounded-lg p-4 border border-slate-200">
                       <h4 className="font-medium text-slate-900 mb-2">Why This Works:</h4>
-                      <p className="text-sm text-slate-600">{currentAd.whyItWorks}</p>
+                      <p className="text-sm text-slate-600">{currentAd?.whyItWorks || 'This ad variation is optimized for your target audience'}</p>
                     </div>
                   </div>
 
                   {/* Carousel Indicators */}
                   <div className="flex justify-center space-x-2">
-                    {aiData.adVariations.map((_, index) => (
+                    {(campaignData.ad_variations || []).map((_: any, index: number) => (
                       <button
                         key={index}
                         onClick={() => setCurrentAdIndex(index)}
@@ -369,7 +428,7 @@ export const CampaignResultsPage: React.FC = () => {
               <CardHeader className="p-6">
                 <CardTitle className="text-lg mb-4">Platform Allocation</CardTitle>
                 <div className="space-y-3">
-                  {aiData.platforms.map((platform, index) => (
+                  {(campaignData.platform_allocation || []).map((platform: any, index: number) => (
                     <div key={index} className="border-l-4 border-emerald-500 pl-4">
                       <div className="flex justify-between items-center mb-1">
                         <span className="font-medium text-slate-900">{platform.name}</span>

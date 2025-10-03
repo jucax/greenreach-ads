@@ -4,8 +4,38 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-// Create Supabase client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Debug environment variables
+console.log('🔧 Supabase configuration:', {
+  url: supabaseUrl ? `${supabaseUrl.substring(0, 20)}...` : 'MISSING',
+  key: supabaseAnonKey ? `${supabaseAnonKey.substring(0, 20)}...` : 'MISSING',
+  hasUrl: !!supabaseUrl,
+  hasKey: !!supabaseAnonKey
+});
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('❌ Missing Supabase environment variables!');
+  console.error('VITE_SUPABASE_URL:', supabaseUrl);
+  console.error('VITE_SUPABASE_ANON_KEY:', supabaseAnonKey ? 'Present' : 'Missing');
+}
+
+// Create Supabase client with proper auth configuration
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: false,
+  },
+});
+
+// Test Supabase connection
+supabase.auth.getSession().then(({ data: { session }, error }) => {
+  if (error) {
+    console.error('❌ Supabase auth error:', error);
+  } else {
+    console.log('✅ Supabase client initialized successfully');
+    console.log('🔐 Current session:', session ? 'Active' : 'None');
+  }
+});
 
 // Database Types
 export interface Company {
@@ -14,10 +44,11 @@ export interface Company {
   industry: string;
   size: string;
   website?: string;
-  monthly_budget_range: string;
+  monthly_budget_range?: string | null;
   has_ad_experience: boolean;
   current_platforms?: string[];
   company_code: string;
+  logo_url?: string;
   created_at: string;
   updated_at: string;
 }
@@ -30,6 +61,7 @@ export interface User {
   company_id: string;
   is_company_admin: boolean;
   avatar_url?: string;
+  profile_picture_url?: string;
   created_at: string;
   updated_at: string;
 }

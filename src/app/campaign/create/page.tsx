@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Package, Target, Calendar, Image as ImageIcon } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { Card, CardHeader } from '../../../components/ui/Card';
 import { DashboardNavbar } from '../../../components/layout/DashboardNavbar';
+import { useAuth } from '../../../contexts/AuthContext';
+import { supabase } from '../../../lib/supabase';
+import { ImageService } from '../../../services/imageService';
 
 interface CampaignFormData {
   productName: string;
@@ -17,10 +20,20 @@ interface CampaignFormData {
 }
 
 export const CreateCampaignPage: React.FC = () => {
+  const { user, company } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+
+  // Cleanup image preview URLs on unmount
+  useEffect(() => {
+    return () => {
+      imagePreviews.forEach(url => {
+        ImageService.revokePreviewUrl(url);
+      });
+    };
+  }, [imagePreviews]);
 
   const [formData, setFormData] = useState<CampaignFormData>({
     productName: '',
@@ -34,13 +47,85 @@ export const CreateCampaignPage: React.FC = () => {
   });
 
   const categories = [
+    // Technology & Electronics
     'Electronics',
-    'Fashion/Apparel',
-    'Home & Garden',
-    'Food & Beverage',
-    'Health & Wellness',
     'Software/SaaS',
+    'Mobile Apps',
+    'Gaming',
+    'Tech Accessories',
+    'Smart Home',
+    'Automotive Tech',
+    
+    // Fashion & Beauty
+    'Fashion/Apparel',
+    'Beauty & Cosmetics',
+    'Jewelry & Accessories',
+    'Footwear',
+    'Luxury Goods',
+    'Sustainable Fashion',
+    
+    // Home & Lifestyle
+    'Home & Garden',
+    'Furniture',
+    'Home Decor',
+    'Kitchen & Dining',
+    'Bedding & Bath',
+    'Pet Supplies',
+    'Baby & Kids',
+    
+    // Food & Beverage
+    'Food & Beverage',
+    'Restaurants & Dining',
+    'Organic & Natural',
+    'Beverages',
+    'Snacks & Treats',
+    'Cooking & Kitchen',
+    
+    // Health & Wellness
+    'Health & Wellness',
+    'Fitness & Sports',
+    'Medical & Healthcare',
+    'Mental Health',
+    'Nutrition & Supplements',
+    'Personal Care',
+    'Wellness Services',
+    
+    // Business & Professional
     'Professional Services',
+    'Business & Finance',
+    'Education & Training',
+    'Consulting',
+    'Legal Services',
+    'Real Estate',
+    'Insurance',
+    
+    // Travel & Entertainment
+    'Travel & Tourism',
+    'Hotels & Accommodation',
+    'Entertainment',
+    'Events & Venues',
+    'Sports & Recreation',
+    'Music & Arts',
+    'Books & Media',
+    
+    // Automotive & Transportation
+    'Automotive',
+    'Transportation',
+    'Ride Sharing',
+    'Electric Vehicles',
+    'Auto Parts & Accessories',
+    
+    // Sustainability & Environment
+    'Sustainability & Green',
+    'Renewable Energy',
+    'Eco-Friendly Products',
+    'Environmental Services',
+    'Carbon Offset',
+    
+    // Other
+    'Non-Profit & Charity',
+    'Government & Public',
+    'Religious & Spiritual',
     'Other',
   ];
 
@@ -51,6 +136,18 @@ export const CreateCampaignPage: React.FC = () => {
     'Drive Website Traffic',
     'Promote Event',
     'Product Launch',
+    'Increase App Downloads',
+    'Boost Engagement',
+    'Retarget Customers',
+    'Seasonal Promotion',
+    'Clearance Sale',
+    'Customer Retention',
+    'Market Expansion',
+    'Thought Leadership',
+    'Community Building',
+    'Fundraising',
+    'Recruitment',
+    'Educational Content',
   ];
 
   const handleChange = (field: keyof CampaignFormData, value: string | File[]) => {
@@ -68,19 +165,11 @@ export const CreateCampaignPage: React.FC = () => {
     }
 
     const validFiles = files.filter(file => {
-      const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
-      const maxSize = 5 * 1024 * 1024; // 5MB
-      
-      if (!validTypes.includes(file.type)) {
-        setErrors({ ...errors, images: 'Only JPG, PNG, and WebP files are allowed' });
+      const validation = ImageService.validateCampaignImageFile(file);
+      if (!validation.valid) {
+        setErrors({ ...errors, images: validation.error || 'Invalid file' });
         return false;
       }
-      
-      if (file.size > maxSize) {
-        setErrors({ ...errors, images: 'File size must be less than 5MB' });
-        return false;
-      }
-      
       return true;
     });
 
@@ -89,7 +178,7 @@ export const CreateCampaignPage: React.FC = () => {
       handleChange('images', validFiles);
 
       // Create previews
-      const previews = validFiles.map(file => URL.createObjectURL(file));
+      const previews = validFiles.map(file => ImageService.createPreviewUrl(file));
       setImagePreviews(previews);
     }
   };
@@ -118,34 +207,206 @@ export const CreateCampaignPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm()) return;
+    console.log('🚀 Starting campaign creation...');
+    console.log('📋 Form data:', formData);
+    console.log('👤 User:', user?.name);
+    console.log('🏢 Company:', company?.name);
+    
+    if (!validateForm()) {
+      console.log('❌ Form validation failed');
+      return;
+    }
+
+    if (!user || !company) {
+      console.log('❌ No user or company found');
+      alert('Please log in to create a campaign');
+      return;
+    }
 
     setLoading(true);
     
-    // Simulate API call to generate campaign
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    // TODO: Call actual Claude API endpoint with image files
-    // const response = await fetch('/api/generate-campaign', {
-    //   method: 'POST',
-    //   body: JSON.stringify({
-    //     ...formData,
-    //     imageCount: formData.images.length
-    //   })
-    // });
-    
-    // For demo, navigate with mock data
-    const mockResponse = {
-      productName: formData.productName,
-      productDescription: formData.productDescription,
-      category: formData.productCategory,
-      objective: formData.objective,
-      budget: formData.budget,
-      imageCount: formData.images.length,
-      images: imagePreviews,
-    };
-    
-    navigate('/campaign/results', { state: { campaignData: mockResponse } });
+    try {
+      console.log('\n1️⃣ Generating AI campaign data...');
+      
+      // Simulate AI generation (in production, call Claude API)
+      // Reduced delay for better user experience
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const aiGeneratedData = {
+        target_audience: {
+          ageRange: '25-45',
+          interests: ['Technology', 'Sustainability'],
+          demographics: 'Urban professionals',
+          incomeLevel: '$50k-$100k'
+        },
+        geographic_targeting: {
+          primary: 'United States',
+          cities: ['New York', 'Los Angeles', 'San Francisco']
+        },
+        posting_schedule: {
+          bestDays: ['Monday', 'Wednesday', 'Friday'],
+          bestTimes: ['9-11am EST', '7-9pm EST'],
+          reasoning: 'Peak engagement hours for target audience'
+        },
+        platform_allocation: [
+          { name: 'Facebook', budget: parseFloat(formData.budget) * 0.4, percentage: 40, reasoning: 'Best for brand awareness' },
+          { name: 'Instagram', budget: parseFloat(formData.budget) * 0.3, percentage: 30, reasoning: 'Visual content performs well' },
+          { name: 'Google', budget: parseFloat(formData.budget) * 0.3, percentage: 30, reasoning: 'High intent audience' }
+        ],
+        ad_variations: [
+          {
+            name: 'Variation 1',
+            targetSegment: 'Tech Enthusiasts',
+            headline: `Discover ${formData.productName}`,
+            body: formData.productDescription,
+            cta: 'Learn More',
+            whyItWorks: 'Appeals to tech-savvy audience'
+          },
+          {
+            name: 'Variation 2',
+            targetSegment: 'Eco-Conscious',
+            headline: `Sustainable ${formData.productName}`,
+            body: `Join the green revolution with ${formData.productName}`,
+            cta: 'Go Green',
+            whyItWorks: 'Emphasizes environmental benefits'
+          }
+        ]
+      };
+      
+      console.log('✅ AI data generated');
+      
+      console.log('\n2️⃣ Calculating sustainability metrics...');
+      const { data: sustainabilityMetrics, error: metricsError } = await supabase
+        .rpc('calculate_sustainability_metrics', { campaign_budget: parseFloat(formData.budget) });
+      
+      let finalMetrics;
+      if (metricsError) {
+        console.error('❌ Error calculating sustainability metrics:', metricsError);
+        // Use fallback calculation
+        const budget = parseFloat(formData.budget);
+        const traditionalEnergy = budget * 0.076;
+        const optimizedEnergy = traditionalEnergy * 0.4;
+        const co2Saved = (traditionalEnergy - optimizedEnergy) * 0.5;
+        
+        let score = 'C';
+        if (optimizedEnergy < traditionalEnergy * 0.35) score = 'A+';
+        else if (optimizedEnergy < traditionalEnergy * 0.40) score = 'A';
+        else if (optimizedEnergy < traditionalEnergy * 0.45) score = 'A-';
+        else if (optimizedEnergy < traditionalEnergy * 0.50) score = 'B+';
+        else if (optimizedEnergy < traditionalEnergy * 0.60) score = 'B';
+        
+        finalMetrics = {
+          energy_used_kwh: optimizedEnergy,
+          co2_avoided_kg: co2Saved,
+          green_score: score
+        };
+        
+        console.log('✅ Fallback sustainability metrics calculated');
+      } else {
+        finalMetrics = sustainabilityMetrics;
+        console.log('✅ Sustainability metrics calculated:', sustainabilityMetrics);
+      }
+      
+      console.log('\n3️⃣ Uploading campaign images...');
+      let uploadedImageUrls: string[] = [];
+      
+      if (formData.images && formData.images.length > 0) {
+        console.log('📤 Uploading', formData.images.length, 'images...');
+        const uploadResult = await ImageService.uploadMultipleImages(
+          formData.images,
+          'campaign-images',
+          user.id
+        );
+        
+        if (uploadResult.success && uploadResult.urls) {
+          uploadedImageUrls = uploadResult.urls;
+          console.log('✅ Images uploaded successfully:', uploadedImageUrls);
+        } else {
+          console.error('❌ Image upload failed:', uploadResult.error);
+          alert('Image upload failed. Please try again.');
+          setLoading(false);
+          return;
+        }
+      } else {
+        console.log('ℹ️ No images provided, skipping upload');
+      }
+      
+      console.log('\n4️⃣ Creating campaign in database...');
+      const campaignData = {
+        user_id: user.id,
+        company_id: company.id,
+        name: `${formData.productName} Campaign`,
+        product_name: formData.productName,
+        product_description: formData.productDescription,
+        product_category: formData.productCategory,
+        budget: parseFloat(formData.budget),
+        objective: formData.objective,
+        start_date: formData.startDate,
+        end_date: formData.endDate,
+        status: 'draft' as const,
+        target_audience: aiGeneratedData.target_audience,
+        geographic_targeting: aiGeneratedData.geographic_targeting,
+        posting_schedule: aiGeneratedData.posting_schedule,
+        platform_allocation: aiGeneratedData.platform_allocation,
+        ad_variations: aiGeneratedData.ad_variations,
+        image_urls: uploadedImageUrls,
+        selected_image_index: 0,
+        actual_reach: 0,
+        actual_impressions: 0,
+        actual_clicks: 0,
+        actual_conversions: 0,
+        actual_spend: 0,
+        energy_used_kwh: finalMetrics.energy_used_kwh,
+        co2_avoided_kg: finalMetrics.co2_avoided_kg,
+        green_score: finalMetrics.green_score
+      };
+      
+      console.log('📝 Campaign data to insert:', campaignData);
+      
+      const { data: newCampaign, error: campaignError } = await supabase
+        .from('campaigns')
+        .insert(campaignData)
+        .select()
+        .single();
+      
+      if (campaignError) {
+        console.error('❌ Error creating campaign:', campaignError);
+        console.error('Campaign error details:', {
+          message: campaignError.message,
+          details: campaignError.details,
+          hint: campaignError.hint,
+          code: campaignError.code
+        });
+        
+        // Provide more specific error messages
+        let errorMessage = 'Error creating campaign. ';
+        if (campaignError.code === '23503') {
+          errorMessage += 'User or company not found. Please log in again.';
+        } else if (campaignError.code === '23505') {
+          errorMessage += 'Campaign with this name already exists.';
+        } else if (campaignError.message.includes('permission')) {
+          errorMessage += 'Permission denied. Please check your account.';
+        } else {
+          errorMessage += 'Please try again or contact support.';
+        }
+        
+        alert(errorMessage);
+        setLoading(false);
+        return;
+      }
+      
+      console.log('\n🎉 Campaign created successfully!');
+      console.log('✅ Campaign ID:', newCampaign.id);
+      
+      // Navigate to results page with campaign ID
+      navigate(`/campaign/results?id=${newCampaign.id}`);
+      
+    } catch (error) {
+      console.error('\n💥 Unexpected error creating campaign:', error);
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      alert('An unexpected error occurred. Please try again.');
+      setLoading(false);
+    }
   };
 
   return (
@@ -318,6 +579,22 @@ export const CreateCampaignPage: React.FC = () => {
                 <div className="flex items-center gap-2 mb-6">
                   <ImageIcon className="w-5 h-5 text-emerald-600" />
                   <h2 className="text-xl font-medium text-emerald-600">Visual Assets</h2>
+                </div>
+                
+                {/* Instructions Box */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                  <h3 className="text-sm font-semibold text-blue-900 mb-2">📸 Visual Asset Guidelines</h3>
+                  <div className="text-sm text-blue-800 space-y-2">
+                    <p><strong>What to upload:</strong></p>
+                    <ul className="list-disc list-inside ml-2 space-y-1">
+                      <li>High-quality product photos (JPG, PNG, WebP)</li>
+                      <li>Multiple angles or variations of your product</li>
+                      <li>Images that showcase key features or benefits</li>
+                      <li>Lifestyle images showing your product in use</li>
+                    </ul>
+                    <p className="mt-3"><strong>💡 Not sure what to choose?</strong></p>
+                    <p>Our AI will analyze all your images and recommend the best ones for your target audience. You can upload up to 3 images, and we'll help you decide which performs best!</p>
+                  </div>
                 </div>
                 
                 <div>

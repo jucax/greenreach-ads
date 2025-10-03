@@ -1,8 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import { Layout } from './app/layout';
 import { LandingPage } from './app/page';
 import { LoginPage } from './app/auth/login/page';
-import { RegisterPage } from './app/auth/register/page';
 import { DashboardPage } from './app/dashboard/page';
 import { CreateCampaignPage } from './app/campaigns/create/page';
 import { CompanyRegistrationPage } from './app/register/company/page';
@@ -11,30 +12,62 @@ import { CreateCampaignPage as NewCreateCampaignPage } from './app/campaign/crea
 import { CampaignResultsPage } from './app/campaign/results/page';
 import { CampaignDetailPage } from './app/campaign/[id]/page';
 import { CampaignSuccessPage } from './app/campaign/success/page';
+import { DemoDashboardPage } from './app/dashboard/demo/page';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Landing page with layout */}
-        <Route path="/" element={<Layout />}>
-          <Route index element={<LandingPage />} />
-        </Route>
-        {/* Dashboard and campaign routes without landing layout (has own header) */}
-        <Route path="dashboard" element={<DashboardPage />} />
-        <Route path="campaigns/create" element={<CreateCampaignPage />} />
-        <Route path="campaign/create" element={<NewCreateCampaignPage />} />
-        <Route path="campaign/results" element={<CampaignResultsPage />} />
-        <Route path="campaign/success" element={<CampaignSuccessPage />} />
-        <Route path="campaign/:id" element={<CampaignDetailPage />} />
-        {/* Auth routes without layout */}
-        <Route path="auth/login" element={<LoginPage />} />
-        <Route path="auth/register" element={<RegisterPage />} />
-        {/* New registration routes without layout */}
-        <Route path="register/company" element={<CompanyRegistrationPage />} />
-        <Route path="register/individual" element={<IndividualRegistrationPage />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* Landing page with layout */}
+          <Route path="/" element={<Layout />}>
+            <Route index element={<LandingPage />} />
+          </Route>
+          
+          {/* Auth routes without layout */}
+          <Route path="auth/login" element={<LoginPage />} />
+          
+          {/* Registration routes without layout */}
+          <Route path="register/company" element={<CompanyRegistrationPage />} />
+          <Route path="register/individual" element={<IndividualRegistrationPage />} />
+          
+          {/* Demo route without layout */}
+          <Route path="dashboard/demo" element={<DemoDashboardPage />} />
+          
+          {/* Protected routes - require authentication */}
+          <Route path="dashboard" element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          } />
+          <Route path="campaigns/create" element={
+            <ProtectedRoute>
+              <CreateCampaignPage />
+            </ProtectedRoute>
+          } />
+          <Route path="campaign/create" element={
+            <ProtectedRoute>
+              <NewCreateCampaignPage />
+            </ProtectedRoute>
+          } />
+          <Route path="campaign/results" element={
+            <ProtectedRoute>
+              <CampaignResultsPage />
+            </ProtectedRoute>
+          } />
+          <Route path="campaign/success" element={
+            <ProtectedRoute>
+              <CampaignSuccessPage />
+            </ProtectedRoute>
+          } />
+          <Route path="campaign/:id" element={
+            <ProtectedRoute>
+              <CampaignDetailPage />
+            </ProtectedRoute>
+          } />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

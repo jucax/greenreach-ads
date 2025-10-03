@@ -1,16 +1,93 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '../../../components/ui/Button';
 import { Card, CardHeader } from '../../../components/ui/Card';
+import { supabase } from '../../../lib/supabase';
 
 export const LoginPage: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement authentication logic
-    console.log('Login attempt:', { email, password });
+    
+    if (!email || !password) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError('');
+      console.log('🔄 Attempting to sign in with:', email);
+      console.log('🔧 Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
+      console.log('🔧 Supabase Key exists:', !!import.meta.env.VITE_SUPABASE_ANON_KEY);
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        console.error('❌ Login error:', error);
+        console.error('❌ Error details:', {
+          message: error.message,
+          status: error.status,
+          name: error.name
+        });
+        setError(error.message);
+        setLoading(false);
+        return;
+      }
+      
+      console.log('✅ Login successful!');
+      console.log('User data:', data.user);
+      console.log('Session:', data.session);
+      console.log('Session expires at:', data.session?.expires_at);
+
+      if (data.user) {
+        console.log('✅ User authenticated successfully');
+        
+        // Check if user exists in users table
+        console.log('🔍 Checking if user profile exists in database...');
+        const { data: userProfile, error: profileError } = await supabase
+          .from('users')
+          .select('id, name, email, company_id')
+          .eq('id', data.user.id)
+          .single();
+        
+        if (profileError || !userProfile) {
+          console.error('❌ User profile not found in database:', profileError);
+          setError('User profile not found. Please contact support.');
+          setLoading(false);
+          return;
+        }
+        
+        console.log('✅ User profile found:', userProfile);
+        
+        // Wait a moment for the session to be fully established
+        console.log('⏳ Waiting for session to be established...');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Get the intended destination or default to dashboard
+        const from = location.state?.from?.pathname || '/dashboard';
+        console.log('🚀 Navigating to:', from);
+        navigate(from, { replace: true });
+      } else {
+        console.error('❌ No user in response');
+        setError('Login failed - no user data received');
+        setLoading(false);
+      }
+    } catch (error: any) {
+      console.error('💥 Unexpected login error:', error);
+      console.error('💥 Error stack:', error.stack);
+      setError('An unexpected error occurred. Please try again.');
+      setLoading(false);
+    }
   };
 
   return (
@@ -64,16 +141,28 @@ export const LoginPage: React.FC = () => {
                 </Link>
               </div>
 
-              <Button type="submit" variant="default" size="lg" className="w-full">
-                Log In
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                  {error}
+                </div>
+              )}
+
+              <Button 
+                type="submit" 
+                variant="default" 
+                size="lg" 
+                className="w-full"
+                disabled={loading}
+              >
+                {loading ? 'Signing In...' : 'Log In'}
               </Button>
             </form>
 
             <div className="mt-6 text-center">
               <p className="text-sm text-slate-600">
                 Don't have an account?{' '}
-                <Link to="/auth/register" className="text-emerald-600 hover:text-emerald-700 font-medium">
-                  Sign up
+                <Link to="/register/individual" className="text-emerald-600 hover:text-emerald-700 font-medium">
+                  Join your team
                 </Link>
               </p>
             </div>

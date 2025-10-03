@@ -40,7 +40,7 @@ export const Layout: React.FC = () => {
                   Log In
                 </Button>
               </Link>
-              <Link to="/auth/register">
+              <Link to="/register/individual">
                 <Button variant="default" size="md">
                   Get Started
                 </Button>

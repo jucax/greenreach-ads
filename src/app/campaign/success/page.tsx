@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CheckCircle, Zap, Leaf, Award, TreePine, Instagram, Facebook, Chrome } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { Card, CardHeader, CardTitle } from '../../../components/ui/Card';
@@ -7,6 +7,17 @@ import { DashboardNavbar } from '../../../components/layout/DashboardNavbar';
 import { InstagramPost } from '../../../components/ui/InstagramPost';
 
 export const CampaignSuccessPage: React.FC = () => {
+  const navigate = useNavigate();
+  const [isNavigating, setIsNavigating] = useState(false);
+
+  const handleNavigation = (path: string) => {
+    setIsNavigating(true);
+    // Small delay to show loading state
+    setTimeout(() => {
+      navigate(path);
+    }, 100);
+  };
+
   // Mock ad variations data
   const adVariations = [
     {
@@ -221,21 +232,33 @@ export const CampaignSuccessPage: React.FC = () => {
 
         {/* Bottom Actions */}
         <div className="flex flex-col sm:flex-row gap-4">
-          <Link to="/campaign/1" className="flex-1">
-            <Button variant="outline" size="lg" className="w-full">
-              View Campaign Details
-            </Button>
-          </Link>
-          <Link to="/campaign/create" className="flex-1">
-            <Button variant="default" size="lg" className="w-full bg-emerald-600 hover:bg-emerald-700">
-              Create Another Campaign
-            </Button>
-          </Link>
-          <Link to="/dashboard" className="flex-1">
-            <Button variant="ghost" size="lg" className="w-full">
-              Back to Dashboard
-            </Button>
-          </Link>
+          <Button 
+            variant="outline" 
+            size="lg" 
+            className="flex-1"
+            onClick={() => handleNavigation('/campaign/1')}
+            disabled={isNavigating}
+          >
+            {isNavigating ? 'Loading...' : 'View Campaign Details'}
+          </Button>
+          <Button 
+            variant="default" 
+            size="lg" 
+            className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+            onClick={() => handleNavigation('/campaign/create')}
+            disabled={isNavigating}
+          >
+            {isNavigating ? 'Loading...' : 'Create Another Campaign'}
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="lg" 
+            className="flex-1"
+            onClick={() => handleNavigation('/dashboard')}
+            disabled={isNavigating}
+          >
+            {isNavigating ? 'Loading...' : 'Back to Dashboard'}
+          </Button>
         </div>
       </main>
     </div>

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import greenreachLogo from '../../assets/greenreach-logo-1.png';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface DashboardNavbarProps {
   userName?: string;
@@ -11,11 +12,12 @@ interface DashboardNavbarProps {
 }
 
 export const DashboardNavbar: React.FC<DashboardNavbarProps> = ({
-  userName = 'John Martinez',
-  userEmail = 'john.martinez@acme.com',
-  companyName = 'Acme Inc.',
-  position = 'Marketing Manager',
+  userName,
+  userEmail,
+  companyName,
+  position,
 }) => {
+  const { user, company, signOut } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -28,15 +30,14 @@ export const DashboardNavbar: React.FC<DashboardNavbarProps> = ({
       .toUpperCase();
   };
 
+  // Use auth data if available, otherwise fall back to props
+  const displayName = userName || user?.name || 'User';
+  const displayEmail = userEmail || user?.email || 'user@example.com';
+  const displayCompany = companyName || company?.name || 'Company';
+  const displayPosition = position || user?.position || 'Employee';
+
   const handleLogout = async () => {
-    // TODO: Implement Supabase logout
-    // await supabase.auth.signOut();
-    
-    // For now, just redirect to landing page
-    navigate('/');
-    
-    // Optional: Show success message
-    console.log('Logged out successfully');
+    await signOut();
   };
 
   // Close dropdown when clicking outside
@@ -69,7 +70,7 @@ export const DashboardNavbar: React.FC<DashboardNavbarProps> = ({
             />
             <div>
               <div className="font-bold text-slate-900 text-lg">GreenReach</div>
-              <div className="text-xs text-slate-500">{companyName}</div>
+              <div className="text-xs text-slate-500">{displayCompany}</div>
             </div>
           </Link>
 
@@ -80,11 +81,11 @@ export const DashboardNavbar: React.FC<DashboardNavbarProps> = ({
               className="flex items-center space-x-3 hover:bg-slate-50 rounded-lg px-3 py-2 transition-colors"
             >
               <div className="text-right hidden sm:block">
-                <div className="text-sm font-medium text-slate-900">{userName}</div>
-                <div className="text-xs text-slate-500">{position}</div>
+                <div className="text-sm font-medium text-slate-900">{displayName}</div>
+                <div className="text-xs text-slate-500">{displayPosition}</div>
               </div>
               <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-white font-semibold">
-                {getInitials(userName)}
+                {getInitials(displayName)}
               </div>
               <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
             </button>
@@ -94,26 +95,13 @@ export const DashboardNavbar: React.FC<DashboardNavbarProps> = ({
               <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-slate-200 py-2">
                 {/* User Info */}
                 <div className="px-4 py-3 border-b border-slate-200">
-                  <div className="text-sm font-medium text-slate-900">{userName}</div>
-                  <div className="text-xs text-slate-500">{userEmail}</div>
+                  <div className="text-sm font-medium text-slate-900">{displayName}</div>
+                  <div className="text-xs text-slate-500">{displayEmail}</div>
                 </div>
 
                 {/* Menu Items */}
                 <div className="py-1">
-                  <Link
-                    to="/profile"
-                    className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-                    onClick={() => setIsDropdownOpen(false)}
-                  >
-                    Edit Profile
-                  </Link>
-                  <Link
-                    to="/settings"
-                    className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-                    onClick={() => setIsDropdownOpen(false)}
-                  >
-                    Settings
-                  </Link>
+                  {/* No menu items - just logout */}
                 </div>
 
                 {/* Logout */}

@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.65.0",
     "@supabase/supabase-js": "^2.58.0",
     "lucide-react": "^0.544.0",
     "react": "^19.1.1",

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Leaf, ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
+import greenreachLogo from '../../assets/greenreach-logo-1.png';
 
 interface DashboardNavbarProps {
   userName?: string;
@@ -61,9 +62,11 @@ export const DashboardNavbar: React.FC<DashboardNavbarProps> = ({
         <div className="flex justify-between items-center h-16">
           {/* Left Side - Logo */}
           <Link to="/dashboard" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center">
-              <Leaf className="w-6 h-6 text-white" />
-            </div>
+            <img 
+              src={greenreachLogo} 
+              alt="GreenReach Ads" 
+              className="h-12 w-auto"
+            />
             <div>
               <div className="font-bold text-slate-900 text-lg">GreenReach</div>
               <div className="text-xs text-slate-500">{companyName}</div>

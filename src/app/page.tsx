@@ -3,6 +3,11 @@ import { Link } from 'react-router-dom';
 import { Zap, Sparkles, Leaf, FileText, Brain, Eye, Rocket } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
+import companyLogo1 from '../assets/company-logo-1.png';
+import companyLogo2 from '../assets/company-logo-2.png';
+import companyLogo3 from '../assets/company-logo-3.png';
+import companyLogo4 from '../assets/company-logo-4.png';
+import companyLogo5 from '../assets/company-logo-5.png';
 
 export const LandingPage: React.FC = () => {
   const scrollToSection = (sectionId: string) => {
@@ -138,6 +143,53 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Partners Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h3 className="text-xl font-semibold text-slate-600 mb-8">Trusted By</h3>
+          </div>
+          
+          <div className="flex justify-center items-center gap-6 lg:gap-8">
+            <div className="w-48 h-36 bg-white rounded-lg flex items-center justify-center p-5 shadow-md hover:shadow-xl transition-shadow">
+              <img 
+                src={companyLogo1} 
+                alt="Partner Company" 
+                className="max-w-full max-h-full object-contain"
+              />
+            </div>
+            <div className="w-48 h-36 bg-white rounded-lg flex items-center justify-center p-5 shadow-md hover:shadow-xl transition-shadow">
+              <img 
+                src={companyLogo2} 
+                alt="Partner Company" 
+                className="max-w-full max-h-full object-contain"
+              />
+            </div>
+            <div className="w-48 h-36 bg-white rounded-lg flex items-center justify-center p-5 shadow-md hover:shadow-xl transition-shadow">
+              <img 
+                src={companyLogo3} 
+                alt="Partner Company" 
+                className="max-w-full max-h-full object-contain"
+              />
+            </div>
+            <div className="w-48 h-36 bg-white rounded-lg flex items-center justify-center p-5 shadow-md hover:shadow-xl transition-shadow">
+              <img 
+                src={companyLogo4} 
+                alt="Partner Company" 
+                className="max-w-full max-h-full object-contain"
+              />
+            </div>
+            <div className="w-48 h-36 bg-white rounded-lg flex items-center justify-center p-5 shadow-md hover:shadow-xl transition-shadow">
+              <img 
+                src={companyLogo5} 
+                alt="Partner Company" 
+                className="max-w-full max-h-full object-contain"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* How It Works Section */}
       <section id="how-it-works" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -234,41 +286,6 @@ export const LandingPage: React.FC = () => {
                 <p className="text-slate-600">through better targeting</p>
               </CardHeader>
             </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Partners Section */}
-      <section className="py-16 bg-slate-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h3 className="text-xl font-semibold text-slate-600 mb-8">Trusted By</h3>
-          </div>
-          
-          <div className="relative">
-            <div className="flex flex-wrap justify-center items-center gap-12 opacity-50">
-              <div className="w-40 h-20 bg-slate-200 rounded-lg flex items-center justify-center">
-                <span className="text-slate-600 font-bold text-sm">Dell Technologies</span>
-              </div>
-              <div className="w-40 h-20 bg-slate-200 rounded-lg flex items-center justify-center">
-                <span className="text-slate-600 font-bold text-sm">eBay</span>
-              </div>
-              <div className="w-40 h-20 bg-slate-200 rounded-lg flex items-center justify-center">
-                <span className="text-slate-600 font-bold text-sm">The Home Depot</span>
-              </div>
-              <div className="w-40 h-20 bg-slate-200 rounded-lg flex items-center justify-center">
-                <span className="text-slate-600 font-bold text-sm">Capital One</span>
-              </div>
-              <div className="w-40 h-20 bg-slate-200 rounded-lg flex items-center justify-center">
-                <span className="text-slate-600 font-bold text-sm">Thrivent</span>
-              </div>
-            </div>
-            
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <span className="bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full text-sm font-semibold border-2 border-emerald-200">
-                Coming Soon
-              </span>
-            </div>
           </div>
         </div>
       </section>

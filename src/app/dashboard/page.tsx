@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Trophy } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Card, CardHeader } from '../../components/ui/Card';
 import { DashboardNavbar } from '../../components/layout/DashboardNavbar';
@@ -61,12 +62,47 @@ const energyData = [
 ];
 
 export const DashboardPage: React.FC = () => {
+  const [leaderboardTab, setLeaderboardTab] = useState<'companies' | 'employees'>('companies');
+
   const getGreenScoreColor = (score: string): string => {
     if (score.startsWith('A')) return 'bg-emerald-100 text-emerald-700';
     if (score.startsWith('B')) return 'bg-blue-100 text-blue-700';
     if (score.startsWith('C')) return 'bg-yellow-100 text-yellow-700';
     return 'bg-red-100 text-red-700';
   };
+
+  const getTrophyIcon = (rank: number) => {
+    if (rank === 1) return '🥇';
+    if (rank === 2) return '🥈';
+    if (rank === 3) return '🥉';
+    return null;
+  };
+
+  const companiesLeaderboard = [
+    { rank: 1, name: 'TechCorp Inc.', score: 'A+', kwh: 145 },
+    { rank: 2, name: 'GreenStart Co.', score: 'A+', kwh: 132 },
+    { rank: 3, name: 'EcoRetail LLC', score: 'A', kwh: 118 },
+    { rank: 4, name: 'Digital Solutions', score: 'A', kwh: 95 },
+    { rank: 5, name: 'SmartAds Agency', score: 'A-', kwh: 87 },
+    { rank: 6, name: 'Future Marketing', score: 'A-', kwh: 76 },
+    { rank: 7, name: 'Urban Brands', score: 'B+', kwh: 68 },
+    { rank: 8, name: 'Coastal Retail', score: 'B+', kwh: 54 },
+    { rank: 9, name: 'Metro Advertising', score: 'B', kwh: 47 },
+    { rank: 10, name: 'City Commerce', score: 'B', kwh: 41 },
+  ];
+
+  const employeesLeaderboard = [
+    { rank: 1, name: 'Sarah Chen', campaigns: 12, kwh: 45 },
+    { rank: 2, name: 'Mike Johnson', campaigns: 10, kwh: 38 },
+    { rank: 3, name: 'Alex Rivera', campaigns: 9, kwh: 35 },
+    { rank: 4, name: 'Emily Watson', campaigns: 8, kwh: 31 },
+    { rank: 5, name: 'David Kim', campaigns: 8, kwh: 28 },
+    { rank: 6, name: 'Lisa Anderson', campaigns: 7, kwh: 26 },
+    { rank: 7, name: 'Tom Martinez', campaigns: 7, kwh: 24 },
+    { rank: 8, name: 'John Martinez', campaigns: 6, kwh: 22, isCurrentUser: true },
+    { rank: 9, name: 'Rachel Green', campaigns: 6, kwh: 19 },
+    { rank: 10, name: 'Chris Brown', campaigns: 5, kwh: 18 },
+  ];
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -217,7 +253,7 @@ export const DashboardPage: React.FC = () => {
           </div>
 
           {/* Right Column - 35% */}
-          <div className="lg:col-span-4">
+          <div className="lg:col-span-4 space-y-8">
             {/* Sustainability Score Card */}
             <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 border-emerald-200">
               <CardHeader className="p-8">
@@ -241,6 +277,125 @@ export const DashboardPage: React.FC = () => {
                       Score calculated based on energy efficiency, targeting precision, and sustainable practices across all your campaigns.
                     </p>
                   </div>
+                </div>
+              </CardHeader>
+            </Card>
+
+            {/* Leaderboard Card */}
+            <Card>
+              <CardHeader className="p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Trophy className="w-5 h-5 text-emerald-600" />
+                  <h2 className="text-xl font-semibold text-slate-900">Sustainability Leaderboard</h2>
+                </div>
+
+                {/* Tab Switcher */}
+                <div className="flex gap-2 mb-4 bg-slate-100 p-1 rounded-lg">
+                  <button
+                    onClick={() => setLeaderboardTab('companies')}
+                    className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                      leaderboardTab === 'companies'
+                        ? 'bg-emerald-600 text-white'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    Companies
+                  </button>
+                  <button
+                    onClick={() => setLeaderboardTab('employees')}
+                    className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                      leaderboardTab === 'employees'
+                        ? 'bg-emerald-600 text-white'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    Employees
+                  </button>
+                </div>
+
+                <p className="text-xs text-slate-500 mb-4">Top Performers - October 2024</p>
+
+                {/* Leaderboard Content */}
+                <div className="max-h-96 overflow-y-auto">
+                  {leaderboardTab === 'companies' ? (
+                    <div className="space-y-2">
+                      {companiesLeaderboard.map((company) => (
+                        <div
+                          key={company.rank}
+                          className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors"
+                        >
+                          <div className="flex items-center gap-3 flex-1">
+                            <span className="text-sm font-bold text-slate-500 w-6">
+                              {getTrophyIcon(company.rank) || `#${company.rank}`}
+                            </span>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-medium text-slate-900 truncate">
+                                {company.name}
+                              </div>
+                              <div className="text-xs text-slate-500">{company.kwh} kWh saved</div>
+                            </div>
+                          </div>
+                          <span className={`text-xs px-2 py-1 rounded font-semibold ${getGreenScoreColor(company.score)}`}>
+                            {company.score}
+                          </span>
+                        </div>
+                      ))}
+                      
+                      {/* User's Company */}
+                      <div className="border-t-2 border-slate-200 pt-2 mt-4">
+                        <div className="flex items-center justify-between p-3 rounded-lg bg-emerald-50 border border-emerald-200">
+                          <div className="flex items-center gap-3 flex-1">
+                            <span className="text-sm font-bold text-emerald-600 w-6">#47</span>
+                            <div className="flex-1">
+                              <div className="text-sm font-medium text-slate-900">
+                                {currentUser.companyName}
+                              </div>
+                              <div className="text-xs text-slate-600">32 kWh saved</div>
+                            </div>
+                          </div>
+                          <span className="text-xs px-2 py-1 rounded font-semibold bg-blue-100 text-blue-700">
+                            B+
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {employeesLeaderboard.map((employee) => (
+                        <div
+                          key={employee.rank}
+                          className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
+                            employee.isCurrentUser
+                              ? 'bg-emerald-50 border border-emerald-200'
+                              : 'hover:bg-slate-50'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3 flex-1">
+                            <span className={`text-sm font-bold w-6 ${
+                              employee.isCurrentUser ? 'text-emerald-600' : 'text-slate-500'
+                            }`}>
+                              {getTrophyIcon(employee.rank) || `#${employee.rank}`}
+                            </span>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-medium text-slate-900 truncate">
+                                {employee.isCurrentUser ? 'You' : employee.name}
+                              </div>
+                              <div className="text-xs text-slate-500">
+                                {employee.campaigns} campaigns • {employee.kwh} kWh saved
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Reset Indicator */}
+                <div className="mt-4 pt-4 border-t border-slate-200">
+                  <p className="text-xs text-center text-slate-500">
+                    Resets in 28 days
+                  </p>
                 </div>
               </CardHeader>
             </Card>

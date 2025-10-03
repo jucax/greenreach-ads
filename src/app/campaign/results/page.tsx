@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MapPin, DollarSign, Calendar, Clock, Globe } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { Card, CardHeader, CardTitle } from '../../../components/ui/Card';
 import { InstagramPost } from '../../../components/ui/InstagramPost';
@@ -196,9 +196,10 @@ export const CampaignResultsPage: React.FC = () => {
                     <span className="text-sm font-medium text-slate-600">Demographics:</span>
                     <span className="ml-2 text-slate-900">{aiData.targetAudience.demographics}</span>
                   </div>
-                  <div>
+                  <div className="flex items-center gap-2">
+                    <DollarSign className="w-4 h-4 text-emerald-600" />
                     <span className="text-sm font-medium text-slate-600">Income Level:</span>
-                    <span className="ml-2 text-slate-900">{aiData.targetAudience.incomeLevel}</span>
+                    <span className="ml-1 text-slate-900">{aiData.targetAudience.incomeLevel}</span>
                   </div>
                 </div>
               </CardHeader>
@@ -208,14 +209,18 @@ export const CampaignResultsPage: React.FC = () => {
             <Card>
               <CardHeader className="p-6">
                 <CardTitle className="text-lg mb-4">Geographic Targeting</CardTitle>
-                <div className="space-y-2">
-                  <div>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-emerald-600" />
                     <span className="text-sm font-medium text-slate-600">Primary:</span>
-                    <span className="ml-2 text-slate-900">{aiData.geographic.primary}</span>
+                    <span className="ml-1 text-slate-900">{aiData.geographic.primary}</span>
                   </div>
                   <div>
-                    <span className="text-sm font-medium text-slate-600">Focus cities:</span>
-                    <div className="text-slate-900">{aiData.geographic.cities.join(', ')}</div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <MapPin className="w-4 h-4 text-emerald-600" />
+                      <span className="text-sm font-medium text-slate-600">Focus cities:</span>
+                    </div>
+                    <div className="text-slate-900 pl-6">{aiData.geographic.cities.join(', ')}</div>
                   </div>
                 </div>
               </CardHeader>
@@ -226,36 +231,20 @@ export const CampaignResultsPage: React.FC = () => {
               <CardHeader className="p-6">
                 <CardTitle className="text-lg mb-4">Posting Strategy</CardTitle>
                 <div className="space-y-3">
-                  <div>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-emerald-600" />
                     <span className="text-sm font-medium text-slate-600">Best Days:</span>
-                    <span className="ml-2 text-slate-900">{aiData.schedule.bestDays.join(', ')}</span>
+                    <span className="ml-1 text-slate-900">{aiData.schedule.bestDays.join(', ')}</span>
                   </div>
-                  <div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-emerald-600" />
                     <span className="text-sm font-medium text-slate-600">Best Times:</span>
-                    <span className="ml-2 text-slate-900">{aiData.schedule.bestTimes.join(', ')}</span>
+                    <span className="ml-1 text-slate-900">{aiData.schedule.bestTimes.join(', ')}</span>
                   </div>
                   <div>
                     <span className="text-sm font-medium text-slate-600">Why:</span>
                     <span className="ml-2 text-slate-900">{aiData.schedule.reasoning}</span>
                   </div>
-                </div>
-              </CardHeader>
-            </Card>
-
-            {/* Platform Allocation */}
-            <Card>
-              <CardHeader className="p-6">
-                <CardTitle className="text-lg mb-4">Platform Allocation</CardTitle>
-                <div className="space-y-3">
-                  {aiData.platforms.map((platform, index) => (
-                    <div key={index} className="border-l-4 border-emerald-500 pl-4">
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="font-medium text-slate-900">{platform.name}</span>
-                        <span className="text-slate-600">${platform.budget} ({platform.percentage}%)</span>
-                      </div>
-                      <p className="text-sm text-slate-600">{platform.reasoning}</p>
-                    </div>
-                  ))}
                 </div>
               </CardHeader>
             </Card>
@@ -285,7 +274,8 @@ export const CampaignResultsPage: React.FC = () => {
           </div>
 
           {/* Right Column - 55% */}
-          <div className="lg:col-span-7">
+          <div className="lg:col-span-7 space-y-6">
+            {/* Ad Variations Carousel */}
             <Card>
               <CardHeader className="p-6">
                 <CardTitle className="text-xl mb-6">AI-Generated Ad Variations</CardTitle>
@@ -370,6 +360,24 @@ export const CampaignResultsPage: React.FC = () => {
                       />
                     ))}
                   </div>
+                </div>
+              </CardHeader>
+            </Card>
+
+            {/* Platform Allocation - Moved here */}
+            <Card>
+              <CardHeader className="p-6">
+                <CardTitle className="text-lg mb-4">Platform Allocation</CardTitle>
+                <div className="space-y-3">
+                  {aiData.platforms.map((platform, index) => (
+                    <div key={index} className="border-l-4 border-emerald-500 pl-4">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="font-medium text-slate-900">{platform.name}</span>
+                        <span className="text-slate-600">${platform.budget} ({platform.percentage}%)</span>
+                      </div>
+                      <p className="text-sm text-slate-600">{platform.reasoning}</p>
+                    </div>
+                  ))}
                 </div>
               </CardHeader>
             </Card>

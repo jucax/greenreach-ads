@@ -151,13 +151,11 @@ export const LandingPage: React.FC = () => {
             {/* Step 1 */}
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader className="p-6">
-                <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="relative w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <FileText className="w-8 h-8 text-emerald-600" />
+                  <span className="absolute -top-2 -left-2 w-8 h-8 bg-emerald-600 rounded-full text-white font-bold flex items-center justify-center text-sm shadow-lg">1</span>
                 </div>
-                <div className="text-center mb-4">
-                  <span className="inline-block w-8 h-8 bg-emerald-600 rounded-full text-white font-bold flex items-center justify-center">1</span>
-                </div>
-                <CardTitle className="text-lg mb-3 text-center">Describe Your Product</CardTitle>
+                <CardTitle className="text-lg mb-3 text-center mt-4">Describe Your Product</CardTitle>
                 <CardDescription className="text-sm leading-relaxed">
                   Tell us about what you're advertising—features, benefits, target use cases. Upload product images and set your budget. The more detail you provide, the smarter our AI recommendations.
                 </CardDescription>
@@ -167,13 +165,11 @@ export const LandingPage: React.FC = () => {
             {/* Step 2 */}
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader className="p-6">
-                <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="relative w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Brain className="w-8 h-8 text-emerald-600" />
+                  <span className="absolute -top-2 -left-2 w-8 h-8 bg-emerald-600 rounded-full text-white font-bold flex items-center justify-center text-sm shadow-lg">2</span>
                 </div>
-                <div className="text-center mb-4">
-                  <span className="inline-block w-8 h-8 bg-emerald-600 rounded-full text-white font-bold flex items-center justify-center">2</span>
-                </div>
-                <CardTitle className="text-lg mb-3 text-center">AI Analyzes & Strategizes</CardTitle>
+                <CardTitle className="text-lg mb-3 text-center mt-4">AI Analyzes & Strategizes</CardTitle>
                 <CardDescription className="text-sm leading-relaxed">
                   Our agentic AI identifies your ideal audience demographics, selects the best platforms (Instagram, Facebook, Google), and determines optimal posting times—all while prioritizing energy-efficient processing.
                 </CardDescription>
@@ -183,13 +179,11 @@ export const LandingPage: React.FC = () => {
             {/* Step 3 */}
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader className="p-6">
-                <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="relative w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Eye className="w-8 h-8 text-emerald-600" />
+                  <span className="absolute -top-2 -left-2 w-8 h-8 bg-emerald-600 rounded-full text-white font-bold flex items-center justify-center text-sm shadow-lg">3</span>
                 </div>
-                <div className="text-center mb-4">
-                  <span className="inline-block w-8 h-8 bg-emerald-600 rounded-full text-white font-bold flex items-center justify-center">3</span>
-                </div>
-                <CardTitle className="text-lg mb-3 text-center">Review Recommendations</CardTitle>
+                <CardTitle className="text-lg mb-3 text-center mt-4">Review Recommendations</CardTitle>
                 <CardDescription className="text-sm leading-relaxed">
                   See AI-generated ad copy variations for different audience segments, complete budget breakdowns, platform strategies, and real-time sustainability impact calculations before you launch.
                 </CardDescription>
@@ -199,13 +193,11 @@ export const LandingPage: React.FC = () => {
             {/* Step 4 */}
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader className="p-6">
-                <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="relative w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Rocket className="w-8 h-8 text-emerald-600" />
+                  <span className="absolute -top-2 -left-2 w-8 h-8 bg-emerald-600 rounded-full text-white font-bold flex items-center justify-center text-sm shadow-lg">4</span>
                 </div>
-                <div className="text-center mb-4">
-                  <span className="inline-block w-8 h-8 bg-emerald-600 rounded-full text-white font-bold flex items-center justify-center">4</span>
-                </div>
-                <CardTitle className="text-lg mb-3 text-center">Launch & Track</CardTitle>
+                <CardTitle className="text-lg mb-3 text-center mt-4">Launch & Track</CardTitle>
                 <CardDescription className="text-sm leading-relaxed">
                   Approve your campaign with one click. Monitor performance metrics, reach, conversions, and environmental impact from your dashboard. Our AI continues optimizing throughout the campaign.
                 </CardDescription>
@@ -310,13 +302,13 @@ export const LandingPage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {/* For Companies */}
-            <Card className="hover:shadow-2xl hover:scale-105 transition-all duration-300">
-              <CardHeader className="p-8">
+            <Card className="hover:shadow-2xl hover:scale-105 transition-all duration-300 flex flex-col">
+              <CardHeader className="p-8 flex-1 flex flex-col">
                 <div className="text-center mb-6">
                   <span className="text-6xl">🏢</span>
                 </div>
                 <CardTitle className="text-2xl mb-3 text-center">For Companies</CardTitle>
-                <CardDescription className="text-base mb-6">
+                <CardDescription className="text-base mb-6 flex-1">
                   <ul className="space-y-3 text-left">
                     <li className="flex items-start">
                       <svg className="w-5 h-5 text-emerald-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
@@ -344,7 +336,7 @@ export const LandingPage: React.FC = () => {
                     </li>
                   </ul>
                 </CardDescription>
-                <Link to="/register/company" className="block mt-6">
+                <Link to="/register/company" className="block mt-auto">
                   <Button variant="default" size="lg" className="w-full">
                     Register Company
                   </Button>
@@ -353,13 +345,13 @@ export const LandingPage: React.FC = () => {
             </Card>
 
             {/* For Individuals */}
-            <Card className="hover:shadow-2xl hover:scale-105 transition-all duration-300">
-              <CardHeader className="p-8">
+            <Card className="hover:shadow-2xl hover:scale-105 transition-all duration-300 flex flex-col">
+              <CardHeader className="p-8 flex-1 flex flex-col">
                 <div className="text-center mb-6">
                   <span className="text-6xl">👤</span>
                 </div>
                 <CardTitle className="text-2xl mb-3 text-center">For Individuals</CardTitle>
-                <CardDescription className="text-base mb-6">
+                <CardDescription className="text-base mb-6 flex-1">
                   <ul className="space-y-3 text-left">
                     <li className="flex items-start">
                       <svg className="w-5 h-5 text-emerald-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
@@ -387,7 +379,7 @@ export const LandingPage: React.FC = () => {
                     </li>
                   </ul>
                 </CardDescription>
-                <Link to="/register/individual" className="block mt-6">
+                <Link to="/register/individual" className="block mt-auto">
                   <Button variant="outline" size="lg" className="w-full">
                     Join as Individual
                   </Button>
@@ -423,40 +415,6 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-slate-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="col-span-1 md:col-span-2">
-              <h3 className="text-2xl font-bold mb-4">GreenReach Ads</h3>
-              <p className="text-slate-300 mb-4">
-                AI-powered advertising that doesn't cost the earth. Smart campaigns, sustainable impact.
-              </p>
-              <p className="text-sm text-slate-400">
-                © 2024 GreenReach Ads. All rights reserved.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Product</h4>
-              <ul className="space-y-2 text-slate-300">
-                <li><Link to="/campaign/create" className="hover:text-white">Create Campaign</Link></li>
-                <li><Link to="/dashboard" className="hover:text-white">Dashboard</Link></li>
-                <li><a href="#" className="hover:text-white">Pricing</a></li>
-                <li><a href="#" className="hover:text-white">API</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-slate-300">
-                <li><a href="#" className="hover:text-white">About</a></li>
-                <li><a href="#" className="hover:text-white">Blog</a></li>
-                <li><a href="#" className="hover:text-white">Careers</a></li>
-                <li><a href="#" className="hover:text-white">Contact</a></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };

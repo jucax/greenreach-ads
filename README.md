@@ -1,8 +1,20 @@
-t # GreenReach Ads 🌱
+# GreenReach Ads 🌱
 
 **AI-powered advertising platform that reduces energy consumption by 60% while delivering better results**
 
 GreenReach Ads is a sustainable advertising platform that combines AI-driven campaign optimization with environmental responsibility. Our platform helps businesses create effective advertising campaigns while significantly reducing their carbon footprint through intelligent targeting and energy-efficient processing.
+
+## 🌐 Live Application
+
+**The application is live and fully functional at: [greenreachads.com](https://greenreachads.com)**
+
+All features are available on the live site, including:
+- Complete demo experience
+- User registration and authentication
+- Campaign creation and management
+- Real-time analytics and sustainability tracking
+
+*You can also run the application locally if you prefer to explore the codebase.*
 
 ## What It Does
 
@@ -42,7 +54,9 @@ GreenReach Ads revolutionizes digital advertising by:
 - **PostCSS** - CSS processing
 - **Autoprefixer** - CSS vendor prefixing
 
-## Navigation Guide for Judges
+## 🎯 Navigation Guide for Judges
+
+**Visit [greenreachads.com](https://greenreachads.com) to explore the live application**
 
 ### 1. **Landing Page** (`/`)
 - Overview of the platform and its benefits
@@ -78,7 +92,9 @@ GreenReach Ads revolutionizes digital advertising by:
 4. Review AI-generated targeting and ad variations
 5. Launch the campaign and track performance
 
-## How to Run the Application
+## 🚀 How to Run the Application Locally
+
+*Note: The application is live at [greenreachads.com](https://greenreachads.com) - you can explore all features there without any setup.*
 
 ### Prerequisites
 - Node.js 20.19+ or 22.12+

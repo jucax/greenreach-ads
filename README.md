@@ -4,7 +4,7 @@ t # GreenReach Ads 🌱
 
 GreenReach Ads is a sustainable advertising platform that combines AI-driven campaign optimization with environmental responsibility. Our platform helps businesses create effective advertising campaigns while significantly reducing their carbon footprint through intelligent targeting and energy-efficient processing.
 
-## 🚀 What It Does
+## What It Does
 
 GreenReach Ads revolutionizes digital advertising by:
 
@@ -42,7 +42,7 @@ GreenReach Ads revolutionizes digital advertising by:
 - **PostCSS** - CSS processing
 - **Autoprefixer** - CSS vendor prefixing
 
-## 🎯 Navigation Guide for Judges
+## Navigation Guide for Judges
 
 ### 1. **Landing Page** (`/`)
 - Overview of the platform and its benefits
@@ -78,7 +78,7 @@ GreenReach Ads revolutionizes digital advertising by:
 4. Review AI-generated targeting and ad variations
 5. Launch the campaign and track performance
 
-## 🚀 How to Run the Application
+## How to Run the Application
 
 ### Prerequisites
 - Node.js 20.19+ or 22.12+

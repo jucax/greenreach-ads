@@ -26,6 +26,8 @@ interface UserData {
 }
 
 export const CompanyRegistrationPage: React.FC = () => {
+  console.log('🏗️ CompanyRegistrationPage component rendering...');
+  
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [companyCode, setCompanyCode] = useState('');
@@ -36,6 +38,8 @@ export const CompanyRegistrationPage: React.FC = () => {
   const [showOthersModal, setShowOthersModal] = useState(false);
   const [connectedAccounts, setConnectedAccounts] = useState<string[]>([]);
   const [connectedServices, setConnectedServices] = useState<Record<string, { email: string; connectedAt: string }>>({});
+  
+  console.log('🔍 Component state:', { step, loading, companyCode });
 
   const [companyData, setCompanyData] = useState<CompanyData>({
     name: '',
@@ -307,16 +311,42 @@ export const CompanyRegistrationPage: React.FC = () => {
   };
 
   const validateStep2 = (): boolean => {
+    console.log('🔍 Starting step 2 validation...');
+    console.log('📋 Company data to validate:', companyData);
+    console.log('👤 User data to validate:', { ...userData, password: '[HIDDEN]' });
+    
     const newErrors: Record<string, string> = {};
 
-    if (!userData.fullName.trim()) newErrors.fullName = 'Full name is required';
-    if (!userData.email.trim()) newErrors.email = 'Email is required';
-    else if (!isValidEmail(userData.email)) newErrors.email = 'Invalid email format';
-    if (!userData.password) newErrors.password = 'Password is required';
-    else if (userData.password.length < 8) newErrors.password = 'Password must be at least 8 characters';
-    if (userData.password !== userData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
-    if (!userData.position.trim()) newErrors.position = 'Position is required';
+    if (!userData.fullName.trim()) {
+      newErrors.fullName = 'Full name is required';
+      console.log('❌ Full name validation failed');
+    }
+    if (!userData.email.trim()) {
+      newErrors.email = 'Email is required';
+      console.log('❌ Email validation failed - empty');
+    } else if (!isValidEmail(userData.email)) {
+      newErrors.email = 'Invalid email format';
+      console.log('❌ Email validation failed - invalid format');
+    }
+    if (!userData.password) {
+      newErrors.password = 'Password is required';
+      console.log('❌ Password validation failed - empty');
+    } else if (userData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
+      console.log('❌ Password validation failed - too short');
+    }
+    if (userData.password !== userData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+      console.log('❌ Password confirmation validation failed');
+    }
+    if (!userData.position.trim()) {
+      newErrors.position = 'Position is required';
+      console.log('❌ Position validation failed');
+    }
 
+    console.log('🔍 Validation errors found:', newErrors);
+    console.log('✅ Validation result:', Object.keys(newErrors).length === 0);
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -332,13 +362,18 @@ export const CompanyRegistrationPage: React.FC = () => {
     console.log('🚀 Starting company registration process...');
     console.log('📋 Company data:', companyData);
     console.log('👤 User data:', { ...userData, password: '[HIDDEN]' });
+    console.log('🔍 Current step:', step);
+    console.log('⏳ Loading state:', loading);
     
     if (!validateStep2()) {
       console.log('❌ Form validation failed');
+      console.log('❌ Current errors:', errors);
       return;
     }
 
+    console.log('✅ Form validation passed, setting loading to true...');
     setLoading(true);
+    console.log('⏳ Loading state after setLoading(true):', loading);
     
     try {
       console.log('\n1️⃣ Generating company code...');
@@ -365,21 +400,60 @@ export const CompanyRegistrationPage: React.FC = () => {
       let logoUrl: string | null = null;
       
       if (companyData.logo) {
-        console.log('📤 Uploading logo file...');
-        const logoUploadResult = await ImageService.uploadImage(
-          companyData.logo,
-          'company-logos',
-          'temp-company' // We'll use a temporary ID since we don't have the company ID yet
-        );
-        
-        if (logoUploadResult.success && logoUploadResult.url) {
-          logoUrl = logoUploadResult.url;
-          console.log('✅ Logo uploaded successfully:', logoUrl);
-        } else {
-          console.error('❌ Logo upload failed:', logoUploadResult.error);
-          alert('Logo upload failed. Please try again.');
-          setLoading(false);
-          return;
+        console.log('📤 Starting logo upload process...');
+        console.log('📁 Logo file:', companyData.logo);
+        try {
+          // Generate unique filename like in Mina app
+          const fileExt = companyData.logo.name.split('.').pop() || 'jpg';
+          const timestamp = Date.now();
+          const randomId = Math.random().toString(36).substring(2, 15);
+          const fileName = `logo-${timestamp}-${randomId}.${fileExt}`;
+          
+          console.log('📝 Generated logo filename:', fileName);
+          
+          // Use direct REST API upload like Mina app
+          const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+          const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+          const bucket = 'company-logos';
+          const uploadUrl = `${supabaseUrl}/storage/v1/object/${bucket}/${fileName}`;
+          
+          console.log('🚀 Uploading to Supabase Storage REST endpoint...');
+          console.log('🔗 Upload URL:', uploadUrl);
+          
+          // Use FormData like mina_app does
+          const formData = new FormData();
+          formData.append('file', companyData.logo);
+          
+          const uploadResponse = await fetch(uploadUrl, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${supabaseAnonKey}`,
+            },
+            body: formData,
+          });
+          
+          console.log('📤 Upload response status:', uploadResponse.status);
+          console.log('📤 Upload response headers:', Object.fromEntries(uploadResponse.headers.entries()));
+          
+          if (uploadResponse.status !== 200 && uploadResponse.status !== 201) {
+            const errorText = await uploadResponse.text();
+            console.error('❌ Upload failed:', errorText);
+            throw new Error(`Upload failed: ${uploadResponse.status} ${errorText}`);
+          }
+          
+          // Construct the public URL
+          const publicUrl = `${supabaseUrl}/storage/v1/object/public/${bucket}/${fileName}`;
+          logoUrl = publicUrl;
+          console.log('✅ Logo uploaded successfully:', publicUrl);
+        } catch (err) {
+          console.error('❌ Logo upload process failed:', err);
+          console.error('❌ Logo upload error details:', {
+            name: err instanceof Error ? err.name : 'Unknown',
+            message: err instanceof Error ? err.message : String(err),
+            cause: err instanceof Error ? err.cause : undefined
+          });
+          // Don't fail the entire registration for logo upload issues
+          console.log('⚠️ Continuing registration without logo...');
         }
       } else {
         console.log('ℹ️ No logo provided, skipping upload');
@@ -459,21 +533,60 @@ export const CompanyRegistrationPage: React.FC = () => {
       let profilePictureUrl: string | null = null;
       
       if (userData.profilePicture) {
-        console.log('📤 Uploading profile picture...');
-        const profileUploadResult = await ImageService.uploadImage(
-          userData.profilePicture,
-          'profile-pictures',
-          authData.user?.id || 'temp-user'
-        );
-        
-        if (profileUploadResult.success && profileUploadResult.url) {
-          profilePictureUrl = profileUploadResult.url;
-          console.log('✅ Profile picture uploaded successfully:', profilePictureUrl);
-        } else {
-          console.error('❌ Profile picture upload failed:', profileUploadResult.error);
-          alert('Profile picture upload failed. Please try again.');
-          setLoading(false);
-          return;
+        console.log('📤 Starting profile picture upload process...');
+        console.log('📁 Profile picture file:', userData.profilePicture);
+        try {
+          // Generate unique filename like in Mina app
+          const fileExt = userData.profilePicture.name.split('.').pop() || 'jpg';
+          const timestamp = Date.now();
+          const randomId = Math.random().toString(36).substring(2, 15);
+          const fileName = `profile-${timestamp}-${randomId}.${fileExt}`;
+          
+          console.log('📝 Generated profile picture filename:', fileName);
+          
+          // Use direct REST API upload like Mina app
+          const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+          const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+          const bucket = 'profile-pictures';
+          const uploadUrl = `${supabaseUrl}/storage/v1/object/${bucket}/${fileName}`;
+          
+          console.log('🚀 Uploading to Supabase Storage REST endpoint...');
+          console.log('🔗 Upload URL:', uploadUrl);
+          
+          // Use FormData like mina_app does
+          const formData = new FormData();
+          formData.append('file', userData.profilePicture);
+          
+          const uploadResponse = await fetch(uploadUrl, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${supabaseAnonKey}`,
+            },
+            body: formData,
+          });
+          
+          console.log('📤 Upload response status:', uploadResponse.status);
+          console.log('📤 Upload response headers:', Object.fromEntries(uploadResponse.headers.entries()));
+          
+          if (uploadResponse.status !== 200 && uploadResponse.status !== 201) {
+            const errorText = await uploadResponse.text();
+            console.error('❌ Upload failed:', errorText);
+            throw new Error(`Upload failed: ${uploadResponse.status} ${errorText}`);
+          }
+          
+          // Construct the public URL
+          const publicUrl = `${supabaseUrl}/storage/v1/object/public/${bucket}/${fileName}`;
+          profilePictureUrl = publicUrl;
+          console.log('✅ Profile picture uploaded successfully:', publicUrl);
+        } catch (err) {
+          console.error('❌ Profile picture upload process failed:', err);
+          console.error('❌ Profile picture upload error details:', {
+            name: err instanceof Error ? err.name : 'Unknown',
+            message: err instanceof Error ? err.message : String(err),
+            cause: err instanceof Error ? err.cause : undefined
+          });
+          // Don't fail the entire registration for profile picture upload issues
+          console.log('⚠️ Continuing registration without profile picture...');
         }
       } else {
         console.log('ℹ️ No profile picture provided, skipping upload');
@@ -545,6 +658,11 @@ export const CompanyRegistrationPage: React.FC = () => {
     } catch (error) {
       console.error('\n💥 Unexpected registration error:', error);
       console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      console.error('Error details:', {
+        name: error instanceof Error ? error.name : 'Unknown',
+        message: error instanceof Error ? error.message : String(error),
+        cause: error instanceof Error ? error.cause : undefined
+      });
       alert('An unexpected error occurred. Please try again.');
       setLoading(false);
     }
@@ -1068,7 +1186,13 @@ export const CompanyRegistrationPage: React.FC = () => {
                   </Button>
                   <Button
                     type="button"
-                    onClick={handleSubmit}
+                    onClick={() => {
+                      console.log('🖱️ Create button clicked!');
+                      console.log('🔍 Button state - loading:', loading);
+                      console.log('🔍 Button state - step:', step);
+                      console.log('🔍 Button state - errors:', errors);
+                      handleSubmit();
+                    }}
                     variant="default"
                     size="lg"
                     className="flex-1"

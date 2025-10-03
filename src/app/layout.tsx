@@ -22,7 +22,7 @@ export const Layout: React.FC = () => {
 
             {/* Navigation Links */}
             <div className="hidden md:flex items-center space-x-8">
-              <Link to="/features" className="text-slate-600 hover:text-emerald-600 transition-colors">
+              <Link to="/#solution" className="text-slate-600 hover:text-emerald-600 transition-colors">
                 Features
               </Link>
               <Link to="/pricing" className="text-slate-600 hover:text-emerald-600 transition-colors">
@@ -89,8 +89,8 @@ export const Layout: React.FC = () => {
               <h3 className="font-semibold text-slate-900 mb-4">Company</h3>
               <ul className="space-y-2">
                 <li><Link to="/about" className="text-slate-600 hover:text-emerald-600">About Us</Link></li>
-                <li><Link to="/contact" className="text-slate-600 hover:text-emerald-600">Contact</Link></li>
-                <li><Link to="/privacy" className="text-slate-600 hover:text-emerald-600">Privacy</Link></li>
+                <li><Link to="/#solution" className="text-slate-600 hover:text-emerald-600">Features</Link></li>
+                <li><Link to="/pricing" className="text-slate-600 hover:text-emerald-600">Pricing</Link></li>
               </ul>
             </div>
           </div>

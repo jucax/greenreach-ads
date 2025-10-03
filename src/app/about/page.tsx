@@ -28,6 +28,11 @@ export const AboutPage: React.FC = () => {
                   View Pricing
                 </Button>
               </Link>
+              <Link to="/#solution">
+                <Button className="border-2 border-slate-600 text-slate-600 hover:bg-slate-50 font-semibold py-4 px-8 rounded-lg text-lg transition-all">
+                  View Features
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -225,6 +230,11 @@ export const AboutPage: React.FC = () => {
             <Link to="/pricing">
               <Button className="border-2 border-white text-white hover:bg-white hover:text-emerald-600 font-semibold py-4 px-8 rounded-lg text-lg transition-all">
                 View Pricing
+              </Button>
+            </Link>
+            <Link to="/#solution">
+              <Button className="border-2 border-emerald-200 text-emerald-200 hover:bg-emerald-200 hover:text-emerald-600 font-semibold py-4 px-8 rounded-lg text-lg transition-all">
+                View Features
               </Button>
             </Link>
           </div>

@@ -41,6 +41,11 @@ ALTER TABLE users
 ADD COLUMN IF NOT EXISTS profile_picture_url TEXT;
 
 -- 4. Create storage policies for company logos
+-- Drop existing policies first to avoid conflicts
+DROP POLICY IF EXISTS "Users can upload company logos" ON storage.objects;
+DROP POLICY IF EXISTS "Company logos are publicly readable" ON storage.objects;
+DROP POLICY IF EXISTS "Company admins can update logos" ON storage.objects;
+
 -- Allow authenticated users to upload company logos
 CREATE POLICY "Users can upload company logos" ON storage.objects
 FOR INSERT WITH CHECK (
@@ -60,6 +65,11 @@ FOR UPDATE USING (
 );
 
 -- 5. Create storage policies for profile pictures
+-- Drop existing policies first to avoid conflicts
+DROP POLICY IF EXISTS "Users can upload profile pictures" ON storage.objects;
+DROP POLICY IF EXISTS "Profile pictures are publicly readable" ON storage.objects;
+DROP POLICY IF EXISTS "Users can update their profile pictures" ON storage.objects;
+
 -- Allow authenticated users to upload their own profile pictures
 CREATE POLICY "Users can upload profile pictures" ON storage.objects
 FOR INSERT WITH CHECK (
@@ -79,6 +89,11 @@ FOR UPDATE USING (
 );
 
 -- 6. Create storage policies for campaign images
+-- Drop existing policies first to avoid conflicts
+DROP POLICY IF EXISTS "Users can upload campaign images" ON storage.objects;
+DROP POLICY IF EXISTS "Campaign images are publicly readable" ON storage.objects;
+DROP POLICY IF EXISTS "Users can update campaign images" ON storage.objects;
+
 -- Allow authenticated users to upload campaign images
 CREATE POLICY "Users can upload campaign images" ON storage.objects
 FOR INSERT WITH CHECK (

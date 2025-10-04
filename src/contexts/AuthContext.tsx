@@ -33,8 +33,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       console.log('🔄 Refreshing user data...');
       
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Auth refresh timeout')), 10000)
+      );
+      
       // Get current auth user
-      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+      const getUserPromise = supabase.auth.getUser();
+      const { data: { user: authUser }, error: authError } = await Promise.race([getUserPromise, timeoutPromise]) as any;
       
       if (authError) {
         console.error('❌ Auth error:', authError);
@@ -55,11 +61,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log('👤 Auth user found:', authUser.id);
 
       // Get user profile from database
-      const { data: userProfile, error: userError } = await supabase
+      const userProfilePromise = supabase
         .from('users')
         .select('*')
         .eq('id', authUser.id)
         .single();
+      
+      const { data: userProfile, error: userError } = await Promise.race([userProfilePromise, timeoutPromise]) as any;
 
       if (userError) {
         console.error('❌ Error fetching user profile:', userError);
@@ -81,11 +89,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       // Get company data if user has company_id
       if (userProfile.company_id) {
-        const { data: companyData, error: companyError } = await supabase
+        const companyPromise = supabase
           .from('companies')
           .select('*')
           .eq('id', userProfile.company_id)
           .single();
+        
+        const { data: companyData, error: companyError } = await Promise.race([companyPromise, timeoutPromise]) as any;
 
         if (companyError) {
           console.error('❌ Error fetching company:', companyError);

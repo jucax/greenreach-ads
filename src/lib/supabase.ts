@@ -4,18 +4,9 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-// Debug environment variables
-console.log('🔧 Supabase configuration:', {
-  url: supabaseUrl ? `${supabaseUrl.substring(0, 20)}...` : 'MISSING',
-  key: supabaseAnonKey ? `${supabaseAnonKey.substring(0, 20)}...` : 'MISSING',
-  hasUrl: !!supabaseUrl,
-  hasKey: !!supabaseAnonKey
-});
-
+// Check environment variables
 if (!supabaseUrl || !supabaseAnonKey) {
   console.error('❌ Missing Supabase environment variables!');
-  console.error('VITE_SUPABASE_URL:', supabaseUrl);
-  console.error('VITE_SUPABASE_ANON_KEY:', supabaseAnonKey ? 'Present' : 'Missing');
 }
 
 // Create Supabase client with proper auth configuration
@@ -30,13 +21,14 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 });
 
 // Test Supabase connection
-supabase.auth.getSession().then(({ data: { session }, error }) => {
+supabase.auth.getSession().then(({ error }) => {
   if (error) {
     console.error('❌ Supabase auth error:', error);
   } else {
-    console.log('✅ Supabase client initialized successfully');
-    console.log('🔐 Current session:', session ? 'Active' : 'None');
+    console.log('✅ Supabase client initialized');
   }
+}).catch((error) => {
+  console.error('💥 Supabase initialization failed:', error);
 });
 
 // Database Types
@@ -337,3 +329,4 @@ export const createUserProfile = async (userData: Partial<User>): Promise<User |
   
   return data;
 };
+

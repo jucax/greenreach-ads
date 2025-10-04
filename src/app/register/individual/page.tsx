@@ -84,11 +84,9 @@ export const IndividualRegistrationPage: React.FC = () => {
     setProfilePicturePreview('');
   };
 
+
   const validateCompanyCode = async () => {
-    console.log('🔍 Validating company code:', formData.companyCode);
-    
     if (!validateCompanyCodeFormat(formData.companyCode)) {
-      console.log('❌ Invalid company code format');
       setErrors({ ...errors, companyCode: 'Invalid code format. Should be GR-XXXXXX' });
       return;
     }
@@ -96,40 +94,37 @@ export const IndividualRegistrationPage: React.FC = () => {
     setLoading(true);
     
     try {
-      console.log('\n1️⃣ Checking company code against database...');
-      const { data: company, error } = await supabase
+      console.log('🔍 Validating company code:', formData.companyCode);
+      
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Validation timeout')), 5000)
+      );
+      
+      const queryPromise = supabase
         .from('companies')
         .select('id, name')
         .eq('company_code', formData.companyCode)
         .single();
       
-      if (error) {
-        console.error('❌ Error validating company code:', error);
-        console.error('Validation error details:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        });
-        setErrors({ ...errors, companyCode: 'Error validating company code' });
-        setCompanyName('');
-        setCodeValidated(false);
-      } else if (!company) {
-        console.log('❌ Company code not found in database');
+      const { data: company, error } = await Promise.race([queryPromise, timeoutPromise]) as any;
+      
+      console.log('🔍 Validation result:', { company, error });
+      
+      if (error || !company) {
+        console.log('❌ Company code not found:', formData.companyCode);
         setErrors({ ...errors, companyCode: 'Company code not found. Please check with your manager.' });
         setCompanyName('');
         setCodeValidated(false);
       } else {
-        console.log('✅ Company code validated successfully:', company.name);
+        console.log('✅ Company found:', company);
         setCompanyName(company.name);
         setCodeValidated(true);
         setErrors({ ...errors, companyCode: '' });
-        // Store company ID for later use in registration
         setFormData(prev => ({ ...prev, companyId: company.id }));
       }
     } catch (error) {
-      console.error('\n💥 Unexpected error validating company code:', error);
-      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      console.error('💥 Validation error:', error);
       setErrors({ ...errors, companyCode: 'Error validating company code' });
       setCompanyName('');
       setCodeValidated(false);
@@ -184,6 +179,15 @@ export const IndividualRegistrationPage: React.FC = () => {
       console.log('✅ Using validated company ID:', companyId);
       
       console.log('\n1️⃣ Creating user account in Supabase Auth...');
+      console.log('📝 Form data:', {
+        email: formData.email,
+        fullName: formData.fullName,
+        position: formData.position,
+        companyCode: formData.companyCode,
+        companyId: companyId,
+        passwordLength: formData.password.length
+      });
+      
       const authSignUpData = {
         email: formData.email,
         password: formData.password,
@@ -204,7 +208,20 @@ export const IndividualRegistrationPage: React.FC = () => {
           message: authError.message,
           code: authError.status
         });
-        alert('Error creating user account. Please try again.');
+        
+        // Show more specific error message
+        let errorMessage = 'Error creating user account. Please try again.';
+        if (authError.message.includes('already registered')) {
+          errorMessage = 'This email is already registered. Please use a different email or try logging in.';
+        } else if (authError.message.includes('invalid')) {
+          errorMessage = 'Invalid email format. Please check your email address.';
+        } else if (authError.message.includes('password')) {
+          errorMessage = 'Password requirements not met. Please ensure your password is at least 6 characters.';
+        } else if (authError.message) {
+          errorMessage = `Registration failed: ${authError.message}`;
+        }
+        
+        alert(errorMessage);
         setLoading(false);
         return;
       }
@@ -254,7 +271,7 @@ export const IndividualRegistrationPage: React.FC = () => {
       };
       console.log('📝 User insert data:', userInsertData);
       
-      const { data: user, error: userError } = await supabase
+      const { error: userError } = await supabase
         .from('users')
         .insert(userInsertData)
         .select()
@@ -273,20 +290,9 @@ export const IndividualRegistrationPage: React.FC = () => {
         return;
       }
       
-      console.log('\n🎉 Individual registration completed successfully!');
-      console.log('✅ User created:', {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        company_id: user.company_id,
-        is_admin: user.is_company_admin
-      });
+      console.log('✅ Registration completed successfully!');
       
-      // Wait a moment for the auth session to be established
-      console.log('⏳ Waiting for auth session to be established...');
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      console.log('🚀 Redirecting to dashboard...');
+      // Redirect immediately - no need to wait
       setLoading(false);
       navigate('/dashboard', { replace: true });
       

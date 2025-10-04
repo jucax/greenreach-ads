@@ -73,7 +73,13 @@ function App() {
               <CampaignSuccessPage />
             </ProtectedRoute>
           } />
-          <Route path="campaign/:id" element={
+          <Route path="campaign/details/:id" element={
+            <ProtectedRoute>
+              <CampaignDetailPage />
+            </ProtectedRoute>
+          } />
+          {/* Static demo campaign detail page - use /demo/campaign/:id instead */}
+          <Route path="campaign/demo/:id" element={
             <ProtectedRoute>
               <CampaignDetailPage />
             </ProtectedRoute>

@@ -79,11 +79,20 @@ export const CampaignResultsPage: React.FC = () => {
 
   // Load campaign data from database
   useEffect(() => {
+    console.log('🔄 Campaign results useEffect triggered:', {
+      campaignId,
+      user: user ? { id: user.id, name: user.name } : null,
+      company: company ? { id: company.id, name: company.name } : null
+    });
+
     if (campaignId && user && company) {
+      console.log('✅ All required data available, loading campaign...');
       loadCampaignData();
     } else if (!campaignId) {
       console.error('❌ No campaign ID provided');
       setLoading(false);
+    } else {
+      console.log('⏳ Waiting for user/company data...');
     }
   }, [campaignId, user, company]);
 
@@ -92,14 +101,34 @@ export const CampaignResultsPage: React.FC = () => {
 
     try {
       console.log('📊 Loading campaign data for ID:', campaignId);
+      console.log('🔍 Debug info:', {
+        campaignId,
+        userId: user.id,
+        companyId: company.id,
+        companyName: company.name
+      });
       setLoading(true);
 
+      // First, try to find the campaign without company restriction to debug
+      const { data: allCampaigns, error: allError } = await supabase
+        .from('campaigns')
+        .select('*')
+        .eq('id', campaignId);
+
+      console.log('🔍 All campaigns with this ID:', allCampaigns);
+      if (allError) {
+        console.error('❌ Error querying all campaigns:', allError);
+      }
+
+      // Now try with company restriction
       const { data: campaign, error } = await supabase
         .from('campaigns')
         .select('*')
         .eq('id', campaignId)
-        .eq('company_id', company.id) // Ensure user can only see their company's campaigns
+        .eq('company_id', company.id)
         .single();
+
+      console.log('🔍 Campaign query result:', { campaign, error });
 
       if (error) {
         console.error('❌ Error loading campaign:', error);
@@ -109,7 +138,31 @@ export const CampaignResultsPage: React.FC = () => {
           hint: error.hint,
           code: error.code
         });
-        alert('Campaign not found or access denied');
+        
+        // Provide more specific error messages
+        let errorMessage = 'Campaign not found or access denied. ';
+        if (error.code === 'PGRST116') {
+          errorMessage = 'Campaign not found in database. ';
+        } else if (error.message.includes('permission') || error.message.includes('unauthorized')) {
+          errorMessage = 'Permission denied. You may not have access to this campaign. ';
+        }
+        
+        // Check if campaign exists but belongs to different company
+        if (allCampaigns && allCampaigns.length > 0) {
+          const foundCampaign = allCampaigns[0];
+          console.log('🔍 Found campaign with different company:', {
+            campaignCompanyId: foundCampaign.company_id,
+            userCompanyId: company.id,
+            campaignCompanyIdMatches: foundCampaign.company_id === company.id
+          });
+          
+          if (foundCampaign.company_id !== company.id) {
+            errorMessage += `This campaign belongs to a different company.`;
+          }
+        }
+        
+        console.error('🚨 Final error message:', errorMessage);
+        alert(errorMessage);
         setLoading(false);
         return;
       }

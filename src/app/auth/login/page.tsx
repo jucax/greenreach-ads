@@ -3,10 +3,12 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '../../../components/ui/Button';
 import { Card, CardHeader } from '../../../components/ui/Card';
 import { supabase } from '../../../lib/supabase';
+import { useAuth } from '../../../contexts/AuthContext';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { refreshUser } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,9 +25,6 @@ export const LoginPage: React.FC = () => {
     try {
       setLoading(true);
       setError('');
-      console.log('🔄 Attempting to sign in with:', email);
-      console.log('🔧 Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
-      console.log('🔧 Supabase Key exists:', !!import.meta.env.VITE_SUPABASE_ANON_KEY);
       
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -33,58 +32,30 @@ export const LoginPage: React.FC = () => {
       });
 
       if (error) {
-        console.error('❌ Login error:', error);
-        console.error('❌ Error details:', {
-          message: error.message,
-          status: error.status,
-          name: error.name
-        });
         setError(error.message);
         setLoading(false);
         return;
       }
       
-      console.log('✅ Login successful!');
-      console.log('User data:', data.user);
-      console.log('Session:', data.session);
-      console.log('Session expires at:', data.session?.expires_at);
-
       if (data.user) {
-        console.log('✅ User authenticated successfully');
-        
-        // Check if user exists in users table
-        console.log('🔍 Checking if user profile exists in database...');
-        const { data: userProfile, error: profileError } = await supabase
-          .from('users')
-          .select('id, name, email, company_id')
-          .eq('id', data.user.id)
-          .single();
-        
-        if (profileError || !userProfile) {
-          console.error('❌ User profile not found in database:', profileError);
-          setError('User profile not found. Please contact support.');
+        // Refresh the AuthContext
+        try {
+          await refreshUser();
+          
+          // Get the intended destination or default to dashboard
+          const from = location.state?.from?.pathname || '/dashboard';
+          navigate(from, { replace: true });
+        } catch (refreshError) {
+          console.error('❌ Error refreshing user:', refreshError);
+          setError('Error refreshing user data');
           setLoading(false);
-          return;
         }
-        
-        console.log('✅ User profile found:', userProfile);
-        
-        // Wait a moment for the session to be fully established
-        console.log('⏳ Waiting for session to be established...');
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Get the intended destination or default to dashboard
-        const from = location.state?.from?.pathname || '/dashboard';
-        console.log('🚀 Navigating to:', from);
-        navigate(from, { replace: true });
       } else {
-        console.error('❌ No user in response');
         setError('Login failed - no user data received');
         setLoading(false);
       }
     } catch (error: any) {
       console.error('💥 Unexpected login error:', error);
-      console.error('💥 Error stack:', error.stack);
       setError('An unexpected error occurred. Please try again.');
       setLoading(false);
     }
@@ -146,6 +117,7 @@ export const LoginPage: React.FC = () => {
                   {error}
                 </div>
               )}
+
 
               <Button 
                 type="submit" 

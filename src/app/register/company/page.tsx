@@ -396,68 +396,8 @@ export const CompanyRegistrationPage: React.FC = () => {
       console.log('✅ Company code generated:', code);
       setCompanyCode(code);
       
-      console.log('\n2️⃣ Uploading company logo...');
+      console.log('\n2️⃣ Skipping logo upload for now (will upload after user creation)...');
       let logoUrl: string | null = null;
-      
-      if (companyData.logo) {
-        console.log('📤 Starting logo upload process...');
-        console.log('📁 Logo file:', companyData.logo);
-        try {
-          // Generate unique filename like in Mina app
-          const fileExt = companyData.logo.name.split('.').pop() || 'jpg';
-          const timestamp = Date.now();
-          const randomId = Math.random().toString(36).substring(2, 15);
-          const fileName = `logo-${timestamp}-${randomId}.${fileExt}`;
-          
-          console.log('📝 Generated logo filename:', fileName);
-          
-          // Use direct REST API upload like Mina app
-          const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-          const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-          const bucket = 'company-logos';
-          const uploadUrl = `${supabaseUrl}/storage/v1/object/${bucket}/${fileName}`;
-          
-          console.log('🚀 Uploading to Supabase Storage REST endpoint...');
-          console.log('🔗 Upload URL:', uploadUrl);
-          
-          // Use FormData like mina_app does
-          const formData = new FormData();
-          formData.append('file', companyData.logo);
-          
-          const uploadResponse = await fetch(uploadUrl, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${supabaseAnonKey}`,
-            },
-            body: formData,
-          });
-          
-          console.log('📤 Upload response status:', uploadResponse.status);
-          console.log('📤 Upload response headers:', Object.fromEntries(uploadResponse.headers.entries()));
-          
-          if (uploadResponse.status !== 200 && uploadResponse.status !== 201) {
-            const errorText = await uploadResponse.text();
-            console.error('❌ Upload failed:', errorText);
-            throw new Error(`Upload failed: ${uploadResponse.status} ${errorText}`);
-          }
-          
-          // Construct the public URL
-          const publicUrl = `${supabaseUrl}/storage/v1/object/public/${bucket}/${fileName}`;
-          logoUrl = publicUrl;
-          console.log('✅ Logo uploaded successfully:', publicUrl);
-        } catch (err) {
-          console.error('❌ Logo upload process failed:', err);
-          console.error('❌ Logo upload error details:', {
-            name: err instanceof Error ? err.name : 'Unknown',
-            message: err instanceof Error ? err.message : String(err),
-            cause: err instanceof Error ? err.cause : undefined
-          });
-          // Don't fail the entire registration for logo upload issues
-          console.log('⚠️ Continuing registration without logo...');
-        }
-      } else {
-        console.log('ℹ️ No logo provided, skipping upload');
-      }
       
       console.log('\n3️⃣ Creating company in database...');
       const companyInsertData = {
@@ -529,55 +469,72 @@ export const CompanyRegistrationPage: React.FC = () => {
         session: authData.session ? 'Session created' : 'No session'
       });
       
-      console.log('\n5️⃣ Uploading profile picture...');
+      console.log('\n5️⃣ Uploading company logo...');
+      if (companyData.logo) {
+        console.log('📤 Starting logo upload process...');
+        console.log('📁 Logo file:', companyData.logo);
+        try {
+          // Use mock image service
+          const logoUploadResult = await ImageService.uploadImage(
+            companyData.logo,
+            'company-logos',
+            authData.user?.id || 'temp-company'
+          );
+          
+          if (logoUploadResult.success && logoUploadResult.url) {
+            logoUrl = logoUploadResult.url;
+            console.log('✅ Logo uploaded successfully:', logoUrl);
+            
+            // Update company record with logo URL
+            const { error: updateError } = await supabase
+              .from('companies')
+              .update({ logo_url: logoUrl })
+              .eq('id', company.id);
+            
+            if (updateError) {
+              console.error('❌ Error updating company with logo:', updateError);
+            } else {
+              console.log('✅ Company updated with logo URL');
+            }
+          } else {
+            console.error('❌ Logo upload failed:', logoUploadResult.error);
+            console.log('⚠️ Continuing registration without logo...');
+          }
+        } catch (err) {
+          console.error('❌ Logo upload process failed:', err);
+          console.error('❌ Logo upload error details:', {
+            name: err instanceof Error ? err.name : 'Unknown',
+            message: err instanceof Error ? err.message : String(err),
+            cause: err instanceof Error ? err.cause : undefined
+          });
+          console.log('⚠️ Continuing registration without logo...');
+        }
+      } else {
+        console.log('ℹ️ No logo provided, skipping upload');
+      }
+      
+      console.log('\n6️⃣ Uploading profile picture...');
       let profilePictureUrl: string | null = null;
       
       if (userData.profilePicture) {
         console.log('📤 Starting profile picture upload process...');
         console.log('📁 Profile picture file:', userData.profilePicture);
         try {
-          // Generate unique filename like in Mina app
-          const fileExt = userData.profilePicture.name.split('.').pop() || 'jpg';
-          const timestamp = Date.now();
-          const randomId = Math.random().toString(36).substring(2, 15);
-          const fileName = `profile-${timestamp}-${randomId}.${fileExt}`;
+          // Use mock image service
+          const profileUploadResult = await ImageService.uploadImage(
+            userData.profilePicture,
+            'profile-pictures',
+            authData.user?.id || 'temp-user'
+          );
           
-          console.log('📝 Generated profile picture filename:', fileName);
-          
-          // Use direct REST API upload like Mina app
-          const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-          const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-          const bucket = 'profile-pictures';
-          const uploadUrl = `${supabaseUrl}/storage/v1/object/${bucket}/${fileName}`;
-          
-          console.log('🚀 Uploading to Supabase Storage REST endpoint...');
-          console.log('🔗 Upload URL:', uploadUrl);
-          
-          // Use FormData like mina_app does
-          const formData = new FormData();
-          formData.append('file', userData.profilePicture);
-          
-          const uploadResponse = await fetch(uploadUrl, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${supabaseAnonKey}`,
-            },
-            body: formData,
-          });
-          
-          console.log('📤 Upload response status:', uploadResponse.status);
-          console.log('📤 Upload response headers:', Object.fromEntries(uploadResponse.headers.entries()));
-          
-          if (uploadResponse.status !== 200 && uploadResponse.status !== 201) {
-            const errorText = await uploadResponse.text();
-            console.error('❌ Upload failed:', errorText);
-            throw new Error(`Upload failed: ${uploadResponse.status} ${errorText}`);
+          if (profileUploadResult.success && profileUploadResult.url) {
+            profilePictureUrl = profileUploadResult.url;
+            console.log('✅ Profile picture uploaded successfully:', profilePictureUrl);
+          } else {
+            console.error('❌ Profile picture upload failed:', profileUploadResult.error);
+            // Don't fail the entire registration for profile picture upload issues
+            console.log('⚠️ Continuing registration without profile picture...');
           }
-          
-          // Construct the public URL
-          const publicUrl = `${supabaseUrl}/storage/v1/object/public/${bucket}/${fileName}`;
-          profilePictureUrl = publicUrl;
-          console.log('✅ Profile picture uploaded successfully:', publicUrl);
         } catch (err) {
           console.error('❌ Profile picture upload process failed:', err);
           console.error('❌ Profile picture upload error details:', {

@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Button } from '../../../components/ui/Button';
 import { Card, CardHeader, CardTitle } from '../../../components/ui/Card';
 import { DashboardNavbar } from '../../../components/layout/DashboardNavbar';
+import { useAuth } from '../../../contexts/AuthContext';
+import { supabase } from '../../../lib/supabase';
+// import type { Campaign } from '../../../lib/supabase'; // Not needed for mixed data types
 
-// Mock campaign data
-const campaignData: Record<string, any> = {
+// Mock campaign data for demo campaigns
+const mockCampaignData: Record<string, any> = {
   '1': {
     name: 'Summer Sale 2024',
     status: 'Active',
@@ -161,16 +164,91 @@ const campaignData: Record<string, any> = {
 
 export const CampaignDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const campaign = id ? campaignData[id] : null;
+  const { user, company } = useAuth();
+  const [campaign, setCampaign] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isDemo, setIsDemo] = useState(false);
 
-  if (!campaign) {
+  useEffect(() => {
+    const loadCampaign = async () => {
+      if (!id) return;
+
+      try {
+        console.log('📊 Loading campaign details for ID:', id);
+        setLoading(true);
+
+        // Check if this is a demo campaign by checking if we have mock data
+        const demoCampaign = mockCampaignData[id];
+        if (demoCampaign) {
+          console.log('🎭 Loading demo campaign:', demoCampaign);
+          setCampaign(demoCampaign);
+          setIsDemo(true);
+          setLoading(false);
+          return;
+        }
+
+        // If not demo and no user/company, show error
+        if (!user || !company) {
+          setError('Authentication required');
+          return;
+        }
+
+        // Load real campaign from database
+        const { data: campaignData, error: campaignError } = await supabase
+          .from('campaigns')
+          .select('*')
+          .eq('id', id)
+          .eq('company_id', company.id)
+          .single();
+
+        if (campaignError) {
+          console.error('❌ Error loading campaign:', campaignError);
+          setError('Campaign not found or access denied');
+          return;
+        }
+
+        if (!campaignData) {
+          setError('Campaign not found');
+          return;
+        }
+
+        console.log('✅ Campaign loaded successfully:', campaignData);
+        setCampaign(campaignData);
+        setIsDemo(false);
+      } catch (error) {
+        console.error('💥 Error loading campaign:', error);
+        setError('Failed to load campaign');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCampaign();
+  }, [id, user, company]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50">
+        <DashboardNavbar />
+        <div className="flex items-center justify-center min-h-[calc(100vh-80px)]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+            <p className="text-slate-600">Loading campaign details...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !campaign) {
     return (
       <div className="min-h-screen bg-slate-50">
         <DashboardNavbar />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Card className="p-8 text-center">
             <h2 className="text-2xl font-bold text-slate-900 mb-4">Campaign Not Found</h2>
-            <p className="text-slate-600 mb-6">The campaign you're looking for doesn't exist.</p>
+            <p className="text-slate-600 mb-6">{error || 'The campaign you\'re looking for doesn\'t exist.'}</p>
             <Link to="/dashboard">
               <Button>Back to Dashboard</Button>
             </Link>
@@ -180,7 +258,11 @@ export const CampaignDetailPage: React.FC = () => {
     );
   }
 
-  const progressPercentage = (campaign.spent / campaign.budget) * 100;
+  // Helper function removed - using direct conditional logic instead
+
+  const progressPercentage = isDemo 
+    ? campaign.spent && campaign.budget ? (campaign.spent / campaign.budget) * 100 : 0
+    : campaign.actual_spend && campaign.budget ? (campaign.actual_spend / campaign.budget) * 100 : 0;
 
   const getGreenScoreColor = (score: string): string => {
     if (score.startsWith('A')) return 'bg-emerald-500 text-white';
@@ -201,14 +283,32 @@ export const CampaignDetailPage: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-3xl font-bold text-slate-900">{campaign.name}</h1>
             <span className={`px-3 py-1 rounded text-sm font-medium ${
-              campaign.status === 'Active' 
+              (isDemo ? campaign.status === 'Active' : campaign.status === 'active')
                 ? 'bg-emerald-100 text-emerald-700' 
                 : 'bg-slate-100 text-slate-600'
             }`}>
-              {campaign.status}
+              {isDemo ? campaign.status : (campaign.status?.charAt(0).toUpperCase() + campaign.status?.slice(1))}
             </span>
           </div>
-          <p className="text-slate-600">Created on {campaign.dateCreated}</p>
+          <p className="text-slate-600">
+            Created on {isDemo ? campaign.dateCreated : new Date(campaign.created_at).toLocaleDateString()}
+          </p>
+          
+          {/* Action Buttons */}
+          <div className="flex gap-3 mt-4">
+            {!isDemo && campaign.status === 'draft' && (
+              <Link to={`/campaign/results?id=${campaign.id}`}>
+                <Button className="bg-emerald-600 hover:bg-emerald-700">
+                  Launch Campaign
+                </Button>
+              </Link>
+            )}
+            <Link to={isDemo ? "/demo" : "/dashboard"}>
+              <Button variant="outline">
+                Back to {isDemo ? "Demo" : "Dashboard"}
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Two Column Layout */}
@@ -228,7 +328,7 @@ export const CampaignDetailPage: React.FC = () => {
                   <div>
                     <span className="text-sm text-slate-600">Budget:</span>
                     <div className="font-medium text-slate-900 mb-2">
-                      ${campaign.spent} / ${campaign.budget}
+                      ${isDemo ? campaign.spent : campaign.actual_spend || 0} / ${campaign.budget}
                     </div>
                     <div className="w-full bg-slate-200 rounded-full h-2">
                       <div
@@ -346,8 +446,8 @@ export const CampaignDetailPage: React.FC = () => {
                 <CardTitle className="text-lg mb-4">Sustainability Report</CardTitle>
                 <div className="space-y-4">
                   <div className="text-center mb-4">
-                    <div className={`w-16 h-16 rounded-full ${getGreenScoreColor(campaign.greenScore)} flex items-center justify-center text-2xl font-bold mx-auto mb-2`}>
-                      {campaign.greenScore}
+                    <div className={`w-16 h-16 rounded-full ${getGreenScoreColor(isDemo ? campaign.greenScore : campaign.green_score || 'C')} flex items-center justify-center text-2xl font-bold mx-auto mb-2`}>
+                      {isDemo ? campaign.greenScore : campaign.green_score || 'C'}
                     </div>
                     <div className="text-sm text-slate-600">Green Score</div>
                   </div>
@@ -355,11 +455,11 @@ export const CampaignDetailPage: React.FC = () => {
                   <div>
                     <div className="flex justify-between text-sm mb-1">
                       <span className="text-slate-600">Energy Consumed:</span>
-                      <span className="font-medium text-slate-900">{campaign.energyConsumed}</span>
+                      <span className="font-medium text-slate-900">{isDemo ? campaign.energyConsumed : `${campaign.energy_used_kwh || 0} kWh`}</span>
                     </div>
                     <div className="flex justify-between text-sm mb-1">
-                      <span className="text-slate-600">CO₂ Emissions:</span>
-                      <span className="font-medium text-slate-900">{campaign.co2Emissions}</span>
+                      <span className="text-slate-600">CO₂ Avoided:</span>
+                      <span className="font-medium text-slate-900">{isDemo ? campaign.co2Emissions : `${campaign.co2_avoided_kg || 0} kg`}</span>
                     </div>
                   </div>
 

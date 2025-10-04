@@ -24,6 +24,7 @@ export const DashboardPage: React.FC = () => {
   const [energyChartData, setEnergyChartData] = useState<EnergyChartData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loadingRef, setLoadingRef] = useState(false); // Prevent multiple simultaneous loads
 
   console.log('🏠 DashboardPage render:', {
     user: user ? { id: user.id, name: user.name, email: user.email } : null,
@@ -100,19 +101,36 @@ export const DashboardPage: React.FC = () => {
     console.log('🔄 Dashboard useEffect triggered:', {
       user: !!user,
       company: !!company,
-      authLoading
+      authLoading,
+      loading
     });
 
-    // At this point, we know user and company exist due to early returns above
-    console.log('✅ User and company found, loading dashboard data...');
-    loadDashboardData();
-  }, [user, company]);
+    // Only load if we have user and company
+    if (user && company) {
+      console.log('✅ User and company found, loading dashboard data...');
+      loadDashboardData();
+    }
+  }, [user?.id, company?.id]); // Use IDs to prevent unnecessary re-renders
+
+  // Remove focus event listener to prevent loading loops
 
   const loadDashboardData = async () => {
+    // Prevent multiple simultaneous loads
+    if (loadingRef) {
+      console.log('🚫 Dashboard already loading, skipping...');
+      return;
+    }
+
     // User and company are guaranteed to exist at this point
+    console.log('🚀 Starting loadDashboardData...', {
+      companyName: company?.name,
+      companyId: company?.id,
+      userId: user?.id
+    });
 
     try {
       console.log('📊 Loading dashboard data for company:', company.name, 'ID:', company.id);
+      setLoadingRef(true);
       setLoading(true);
       setError(null);
 
@@ -149,13 +167,23 @@ export const DashboardPage: React.FC = () => {
           setCampaigns([]);
         } else {
           console.log('✅ Loaded campaigns:', companyCampaigns?.length || 0);
+          console.log('📊 Campaign data structure:', companyCampaigns?.map(c => ({
+            id: c?.id,
+            name: c?.name,
+            energy_used_kwh: c?.energy_used_kwh,
+            co2_avoided_kg: c?.co2_avoided_kg,
+            actual_reach: c?.actual_reach,
+            green_score: c?.green_score,
+            hasAllRequiredFields: !!(c?.energy_used_kwh && c?.co2_avoided_kg && c?.actual_reach)
+          })));
+          
           setCampaigns(companyCampaigns || []);
           
           // Generate energy chart data from campaigns
           if (companyCampaigns && companyCampaigns.length > 0) {
             const chartData = companyCampaigns.slice(0, 7).map((campaign, index) => ({
               campaign: `Campaign ${index + 1}`,
-              energy: campaign.energy_used_kwh || 0
+              energy: campaign?.energy_used_kwh || 0
             }));
             console.log('📊 Generated chart data:', chartData);
             setEnergyChartData(chartData);
@@ -177,6 +205,14 @@ export const DashboardPage: React.FC = () => {
           setCompanyLeaderboard([]);
         } else {
           console.log('✅ Loaded company leaderboard:', companyLeaderboardData?.length || 0);
+          console.log('📊 Company leaderboard data structure:', companyLeaderboardData?.map(c => ({
+            id: c?.id,
+            name: c?.name,
+            total_campaigns: c?.total_campaigns,
+            total_energy_saved: c?.total_energy_saved,
+            most_common_score: c?.most_common_score,
+            hasAllRequiredFields: !!(c?.name && c?.total_campaigns && c?.total_energy_saved)
+          })));
           setCompanyLeaderboard(companyLeaderboardData || []);
         }
       } else {
@@ -192,6 +228,13 @@ export const DashboardPage: React.FC = () => {
           setEmployeeLeaderboard([]);
         } else {
           console.log('✅ Loaded employee leaderboard:', employeeLeaderboardData?.length || 0);
+          console.log('📊 Employee leaderboard data structure:', employeeLeaderboardData?.map(e => ({
+            id: e?.id,
+            name: e?.name,
+            total_campaigns: e?.total_campaigns,
+            total_energy_saved: e?.total_energy_saved,
+            hasAllRequiredFields: !!(e?.name && e?.total_campaigns && e?.total_energy_saved)
+          })));
           setEmployeeLeaderboard(employeeLeaderboardData || []);
         }
       } else {
@@ -204,6 +247,8 @@ export const DashboardPage: React.FC = () => {
       console.error('💥 Error stack:', error instanceof Error ? error.stack : 'No stack trace');
       setError('Failed to load dashboard data. Please try refreshing the page.');
     } finally {
+      console.log('✅ Dashboard data loading completed, setting loading to false');
+      setLoadingRef(false);
       setLoading(false);
     }
   };
@@ -222,14 +267,42 @@ export const DashboardPage: React.FC = () => {
     return null;
   };
 
-  // Calculate stats from campaigns
-  const totalCampaigns = campaigns.length;
-  const totalReach = campaigns.reduce((sum, campaign) => sum + (campaign.actual_reach || 0), 0);
-  const totalEnergySaved = campaigns.reduce((sum, campaign) => sum + (campaign.energy_used_kwh || 0), 0);
-  const totalCO2Avoided = campaigns.reduce((sum, campaign) => sum + (campaign.co2_avoided_kg || 0), 0);
+  // Calculate stats from campaigns with proper error handling
+  console.log('📊 Calculating dashboard stats from campaigns:', {
+    campaignsLength: campaigns?.length || 0,
+    campaigns: campaigns?.map(c => ({
+      id: c.id,
+      name: c.name,
+      actual_reach: c.actual_reach,
+      energy_used_kwh: c.energy_used_kwh,
+      co2_avoided_kg: c.co2_avoided_kg,
+      green_score: c.green_score
+    }))
+  });
+
+  const totalCampaigns = campaigns?.length || 0;
+  const totalReach = campaigns?.reduce((sum, campaign) => {
+    const reach = campaign?.actual_reach || 0;
+    console.log('📊 Campaign reach calculation:', { campaignId: campaign?.id, reach, sum });
+    return sum + reach;
+  }, 0) || 0;
   
-  // Calculate average green score
-  const scores = campaigns.map(c => c.green_score).filter(Boolean);
+  const totalEnergySaved = campaigns?.reduce((sum, campaign) => {
+    const energy = campaign?.energy_used_kwh || 0;
+    console.log('📊 Campaign energy calculation:', { campaignId: campaign?.id, energy, sum });
+    return sum + energy;
+  }, 0) || 0;
+  
+  const totalCO2Avoided = campaigns?.reduce((sum, campaign) => {
+    const co2 = campaign?.co2_avoided_kg || 0;
+    console.log('📊 Campaign CO2 calculation:', { campaignId: campaign?.id, co2, sum });
+    return sum + co2;
+  }, 0) || 0;
+  
+  // Calculate average green score with proper error handling
+  const scores = campaigns?.map(c => c?.green_score).filter(Boolean) || [];
+  console.log('📊 Green scores found:', scores);
+  
   const scoreValues = scores.map(score => {
     switch (score) {
       case 'A+': return 10; case 'A': return 9; case 'A-': return 8;
@@ -275,6 +348,18 @@ export const DashboardPage: React.FC = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
             <p className="text-slate-600">Loading dashboard...</p>
             <p className="text-sm text-slate-500 mt-2">Fetching your latest campaign data</p>
+            <button 
+              onClick={() => {
+                console.log('🔄 Manual refresh triggered');
+                setLoadingRef(false);
+                setLoading(false);
+                setError(null);
+                setTimeout(() => loadDashboardData(), 100);
+              }}
+              className="mt-4 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+            >
+              Refresh Dashboard
+            </button>
           </div>
         </div>
       </div>
@@ -311,6 +396,20 @@ export const DashboardPage: React.FC = () => {
       </div>
     );
   }
+
+  // Add error boundary logging
+  console.log('🎯 Dashboard render state:', {
+    loading,
+    error,
+    user: !!user,
+    company: !!company,
+    campaignsLength: campaigns?.length || 0,
+    companyLeaderboardLength: companyLeaderboard?.length || 0,
+    employeeLeaderboardLength: employeeLeaderboard?.length || 0,
+    totalEnergySaved,
+    totalCO2Avoided,
+    totalReach
+  });
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -352,7 +451,7 @@ export const DashboardPage: React.FC = () => {
           <Card className="bg-slate-50">
             <CardHeader className="p-6">
               <div className="text-sm text-slate-600 mb-1">Energy Saved</div>
-              <div className="text-3xl font-bold text-emerald-600">{totalEnergySaved.toFixed(0)}</div>
+              <div className="text-3xl font-bold text-emerald-600">{(totalEnergySaved || 0).toFixed(0)}</div>
               <div className="text-xs text-slate-500">kWh</div>
             </CardHeader>
           </Card>
@@ -360,7 +459,7 @@ export const DashboardPage: React.FC = () => {
           <Card className="bg-slate-50">
             <CardHeader className="p-6">
               <div className="text-sm text-slate-600 mb-1">CO₂ Avoided</div>
-              <div className="text-3xl font-bold text-emerald-600">{totalCO2Avoided.toFixed(0)}</div>
+              <div className="text-3xl font-bold text-emerald-600">{(totalCO2Avoided || 0).toFixed(0)}</div>
               <div className="text-xs text-slate-500">kg</div>
             </CardHeader>
           </Card>
@@ -483,7 +582,7 @@ export const DashboardPage: React.FC = () => {
                           </div>
                         </div>
 
-                        <Link to={`/campaign/${campaign.id}`}>
+                        <Link to={`/campaign/details/${campaign.id}`}>
                           <button className="mt-4 text-sm text-emerald-600 hover:text-emerald-700 font-medium">
                             View →
                           </button>
@@ -592,7 +691,7 @@ export const DashboardPage: React.FC = () => {
                                 <div className="text-sm font-medium text-slate-900 truncate">
                                   {company.name}
                                 </div>
-                                <div className="text-xs text-slate-500">{company.total_energy_saved.toFixed(0)} kWh saved</div>
+                                <div className="text-xs text-slate-500">{(company?.total_energy_saved || 0).toFixed(0)} kWh saved</div>
                               </div>
                             </div>
                             <span className={`text-xs px-2 py-1 rounded font-semibold ${getGreenScoreColor(company.most_common_score)}`}>
@@ -611,7 +710,7 @@ export const DashboardPage: React.FC = () => {
                               <div className="text-sm font-medium text-slate-900">
                                 {company.name}
                               </div>
-                              <div className="text-xs text-slate-600">{totalEnergySaved.toFixed(0)} kWh saved</div>
+                              <div className="text-xs text-slate-600">{(totalEnergySaved || 0).toFixed(0)} kWh saved</div>
                             </div>
                           </div>
                           <span className="text-xs px-2 py-1 rounded font-semibold bg-blue-100 text-blue-700">
@@ -647,7 +746,7 @@ export const DashboardPage: React.FC = () => {
                                   {employee.id === user.id ? 'You' : employee.name}
                                 </div>
                                 <div className="text-xs text-slate-500">
-                                  {employee.total_campaigns} campaigns • {employee.total_energy_saved.toFixed(0)} kWh saved
+                                  {employee?.total_campaigns || 0} campaigns • {(employee?.total_energy_saved || 0).toFixed(0)} kWh saved
                                 </div>
                               </div>
                             </div>

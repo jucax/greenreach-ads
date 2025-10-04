@@ -378,18 +378,36 @@ export const CreateCampaignPage: React.FC = () => {
           code: campaignError.code
         });
         
+        // Check for common issues
+        console.error('🔍 Debugging campaign creation error:');
+        console.error('- Supabase URL configured:', !!import.meta.env.VITE_SUPABASE_URL);
+        console.error('- Supabase Key configured:', !!import.meta.env.VITE_SUPABASE_ANON_KEY);
+        console.error('- User ID:', user?.id);
+        console.error('- Company ID:', company?.id);
+        console.error('- Campaign data keys:', Object.keys(campaignData));
+        
         // Provide more specific error messages
         let errorMessage = 'Error creating campaign. ';
-        if (campaignError.code === '23503') {
-          errorMessage += 'User or company not found. Please log in again.';
+        
+        if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+          errorMessage = 'Database connection not configured. Please check environment variables.';
+        } else if (campaignError.code === 'PGRST116') {
+          errorMessage = 'Database table "campaigns" not found. Please check your database schema.';
+        } else if (campaignError.code === '23503') {
+          errorMessage = 'User or company not found. Please log in again.';
         } else if (campaignError.code === '23505') {
-          errorMessage += 'Campaign with this name already exists.';
-        } else if (campaignError.message.includes('permission')) {
-          errorMessage += 'Permission denied. Please check your account.';
+          errorMessage = 'Campaign with this name already exists.';
+        } else if (campaignError.message.includes('permission') || campaignError.message.includes('unauthorized')) {
+          errorMessage = 'Permission denied. Please check your account permissions.';
+        } else if (campaignError.message.includes('relation') && campaignError.message.includes('does not exist')) {
+          errorMessage = 'Database table missing. Please set up your database schema.';
+        } else if (campaignError.message.includes('network') || campaignError.message.includes('fetch')) {
+          errorMessage = 'Network error. Please check your internet connection and try again.';
         } else {
-          errorMessage += 'Please try again or contact support.';
+          errorMessage += `Technical details: ${campaignError.message}. Please try again or contact support.`;
         }
         
+        console.error('🚨 Final error message:', errorMessage);
         alert(errorMessage);
         setLoading(false);
         return;
